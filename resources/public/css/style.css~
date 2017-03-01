@@ -1,0 +1,10 @@
+#square {
+    background-color: red;
+    cursor: pointer;
+    width: 150px;
+    height: 150px;
+}
+
+.dragging {
+    opacity:0.5;
+}
