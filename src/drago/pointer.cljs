@@ -1,40 +1,14 @@
 (ns drago.pointer
-  (:require [goog.events :as events]
-            [cljs.core.async :refer [chan put! <! >! alts!]])
+  (:require [cljs.core.async :refer [chan >! alts!]]
+            [drago.streams :refer [stream-factory]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.math.Coordinate))
 
-(defn- matches
-  "Check if the given event's target matches the selector"
-  [event selector]
-  (let [target (.-target event)]
-    (.matches target selector)))
-
-(defn stream-factory
-  "Creates a function capable of creating event streams.
-  
-  'events' is a any value acceptable by goog.events/listen
-
-  'message-factory' is a function that creates a message 
-   structure. It is passed the event and an html document"
-  [events message-factory]
-  (fn factory
-    ([selector message-name document]
-     (let [ch (chan)]
-       (events/listen
-         document
-         events
-         (fn listener [event]
-           (when (matches event selector)
-             (.preventDefault event)
-             (put! ch [message-name (message-factory event document)]))))
-       ch))
-    ([selector message-name]
-     (factory selector message-name js/document))))
-
 (defrecord PointerMessage [point target document])
 
-(defn mouse-message
+(defn pointer-message
+  "Creates a pointer message containing a coordinate point,
+   the event target, and the event document"
   [event document]
   (let [target (.-target event)
         x (.-clientX event)
@@ -42,15 +16,18 @@
         coords (Coordinate. x y)]
     (->PointerMessage coords target document)))
 
+;;;; Pointer Streams
 (def mousedown
-  (stream-factory "mousedown" mouse-message))
+  (stream-factory "mousedown" pointer-message))
 
 (def mouseup
-  (stream-factory "mouseup" mouse-message))
+  (stream-factory "mouseup" pointer-message))
 
 (def mousemove
-  (stream-factory "mousemove" mouse-message))
+  (stream-factory "mousemove" pointer-message))
 
+;;; Pointer chan is a single stream of event data for
+;;; all pointer events - that is mouse and touch
 (defonce pointer-state (atom {}))
 
 (defn pointer-chan []
