@@ -4,45 +4,13 @@
             [goog.events :as events]
             [mount.core :as mount]
             [cljs.core.async :refer [chan put! <! close!]]
-            [drago.pointer :as ptr])
+            [drago.pointer :as ptr]
+            [drago.reduce :refer [reduce-state]])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [mount.core :refer [defstate]])
   (:import goog.math.Coordinate))
 
 (enable-console-print!)
-
-(defn receive-press
-  [[_ {:keys [target point]}] state]
-  (let [rect (.getBoundingClientRect target)]
-    (-> state
-      (assoc :pressed true)
-      (assoc :rect rect)
-      (assoc :offset (Coordinate. (- (.-x point) (.-left rect))
-                                  (- (.-y point) (.-top rect)))))))
-
-(defn receive-move
-  [_ {:keys [point offset] :as state}]
-  (-> state
-      (assoc :dragging true)
-      (assoc :x (- (.-x point) (.-x offset)))
-      (assoc :y (- (.-y point) (.-y offset)))))
-
-(defn receive-release
-  [_ state]
-  (assoc state :pressed false))
-
-(defn receive-message [data state]
-  (let [message-name (first data)
-        {:keys [target document point]} (second data)
-        new-state (merge state {:name message-name
-                                :target target
-                                :document document
-                                :point point})]
-    (condp = message-name
-      :begin (receive-press data new-state)
-      :move (receive-move data new-state)
-      :release (receive-release data new-state)
-      new-state)))
 
 ;;; MAIN APP LOOP - MAINLY DEV
 (defstate pointer-chan :start (ptr/pointer-chan)
@@ -80,13 +48,20 @@
     :release (draw-end data)
     ""))
 
-(defn app-loop [start-state]
+(defn drago
+  "Initialize the people's champion!"
+  [start-state]
   (go-loop [state start-state]
     (draw state)
-    (recur (receive-message (<! @pointer-chan) state))))
+    (let [[name message] (<! @pointer-chan)
+          {:keys [target document point]} message]
+      (recur (reduce-state (merge state {:name name
+                                         :target target
+                                         :document document
+                                         :point point}))))))
 
-(defstate app :start (app-loop {})
-              :stop (close! @app))
+(defstate drago-loop :start (drago {})
+              :stop (close! @drago-loop))
 
 (defn teardown []
   (events/removeAll js/document "mousedown")
