@@ -26,21 +26,22 @@
 (def mousemove
   (stream-factory "mousemove" pointer-message))
 
-;;; Pointer chan is a single stream of event data for
-;;; all pointer events - that is mouse and touch
 (defonce pointer-state (atom {}))
 
-(defn pointer-chan []
-  (let [down (mousedown ".square" "begin")
-        up (mouseup ".mirror" "release")
-        move (mousemove ".mirror" "move")
+(defn pointer-chan
+  "Creates a channel to function as a single stream of
+   pointer events - i.e mouse and touch"
+  []
+  (let [down (mousedown ".square" :begin)
+        up (mouseup ".mirror" :release)
+        move (mousemove ".mirror" :move)
         out (chan)]
     (go-loop []
       (let [[data channel] (alts! [down up move])
             message-name (first data)
             last-message (get @pointer-state :last-message)
             state (swap! pointer-state assoc :last-message message-name)]
-        (when-not (and (= "move" message-name) (= "release" last-message))
+        (when-not (and (= :move message-name) (= :release last-message))
           (>! out data)))
       (recur))
     out))
