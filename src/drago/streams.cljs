@@ -3,11 +3,15 @@
   (:require [goog.events :as events]
             [cljs.core.async :refer [chan put!]]))
 
-(defn- matches
-  "Check if the given event's target matches the selector"
-  [event selector]
-  (let [target (.-target event)]
-    (.matches target selector)))
+(defn- dispatchable?
+  "Check if the current event is dispatchable for the given target.
+
+  target can be a dom element or a selector string"
+  [event target]
+  (let [event-target (.-target event)]
+    (if (string? target)
+      (.matches event-target target)
+      true)))
 
 (defn stream-factory
   "Creates a function capable of creating event streams.
@@ -18,15 +22,17 @@
    structure. It is passed the event and an html document"
   [events message-factory]
   (fn factory
-    ([selector message-name document]
-     (let [ch (chan)]
+    ([target message-name document]
+     (let [ch (chan)
+           selector? (string? target)
+           event-target (if selector? document target)]
        (events/listen
-         document
+         event-target
          events
          (fn listener [event]
-           (when (matches event selector)
-             (.preventDefault event)
-             (put! ch [message-name (message-factory event document)]))))
+           (.preventDefault event)
+           (when (dispatchable? event target)
+             (put! ch [message-name (message-factory event document)]))()))
        ch))
-    ([selector message-name]
-     (factory selector message-name js/document))))
+    ([target message-name]
+     (factory target message-name js/document))))

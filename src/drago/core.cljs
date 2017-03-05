@@ -6,30 +6,18 @@
             [drago.reduce :refer [reduce-state]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
-(defn clone-node [elem]
-  (.cloneNode elem true))
-
-(defn position-clone
-  [clone rect]  
-  (set! (.. clone -style -left) (str (.-left rect) "px"))
-  (set! (.. clone -style -top) (str (.-top rect) "px")))
-
 (defn draw-start
-  [{:keys [target document rect]}]
-  (let [clone (clone-node target)]
-    (classes/add clone "mirror")
-    (position-clone clone rect)
-    (dom/appendChild (.-body document) clone)))
+  [{:keys [document element]}]
+  (dom/appendChild (.-body document) element))
 
 (defn draw-drag
-  [{:keys [target x y]}]
-  (set! (.. target -style -left) (str x "px"))
-  (set! (.. target -style -top) (str y "px")))
+  [{:keys [element x y]}]
+  (set! (.. element -style -left) (str x "px"))
+  (set! (.. element -style -top) (str y "px")))
 
 (defn draw-end
-  [{:keys [document]}]
-  (let [mirror (.querySelector document ".mirror")]
-    (dom/removeNode mirror)))
+  [{:keys [element]}]
+  (dom/removeNode element))
 
 (defn draw [{:keys [name] :as data}]
   (case name
