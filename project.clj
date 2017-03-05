@@ -21,19 +21,19 @@
 
   :cljsbuild {:builds
               [{:id "dev"
-                :source-paths ["src"]
+                :source-paths ["src" "dev"]
 
                 ;; the presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client
                 ;; into your build
-                :figwheel {:on-jsload "drago.core/on-js-reload"
+                :figwheel {:on-jsload "drago.dev/on-js-reload"
                            ;; :open-urls will pop open your application
                            ;; in the default browser once Figwheel has
                            ;; started and complied your application.
                            ;; Comment this out once it no longer serves you.
                            :open-urls ["http://localhost:3449/index.html"]}
 
-                :compiler {:main drago.core
+                :compiler {:main drago.dev
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/drago.js"
                            :output-dir "resources/public/js/compiled/out"
@@ -96,7 +96,7 @@
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.0"]
                                   [figwheel-sidecar "0.5.9"]
                                   [com.cemerick/piggieback "0.2.1"]]
-                   ;; need to add dev source path here to get user.clj loaded
+
                    :source-paths ["src" "dev"]
                    ;; for CIDER
                    ;; :plugins [[cider/cider-nrepl "0.12.0"]]

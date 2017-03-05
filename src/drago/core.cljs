@@ -1,20 +1,10 @@
 (ns drago.core
   (:require [goog.dom.classlist :as classes]
             [goog.dom :as dom]
-            [goog.events :as events]
-            [mount.core :as mount]
-            [cljs.core.async :refer [chan put! <! close!]]
+            [cljs.core.async :refer [<!]]
             [drago.pointer :as ptr]
             [drago.reduce :refer [reduce-state]])
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
-                   [mount.core :refer [defstate]])
-  (:import goog.math.Coordinate))
-
-(enable-console-print!)
-
-;;; MAIN APP LOOP - MAINLY DEV
-(defstate pointer-chan :start (ptr/pointer-chan)
-                       :stop (close! @pointer-chan))
+  (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (defn clone-node [elem]
   (.cloneNode elem true))
@@ -51,26 +41,12 @@
 (defn drago
   "Initialize the people's champion!"
   [start-state]
-  (go-loop [state start-state]
-    (draw state)
-    (let [[name message] (<! @pointer-chan)
-          {:keys [target document point]} message]
-      (recur (reduce-state (merge state {:name name
-                                         :target target
-                                         :document document
-                                         :point point}))))))
+  (let [pointer-chan (ptr/pointer-chan)]
+    (go-loop [state start-state]
+      (draw state)
+      (let [[name message] (<! pointer-chan)]
+        (recur (reduce-state (merge state {:name name
+                                           :target (:target message)
+                                           :document (:document message)
+                                           :point (:point message)})))))))
 
-(defstate drago-loop :start (drago {})
-              :stop (close! @drago-loop))
-
-(defn teardown []
-  (events/removeAll js/document "mousedown")
-  (events/removeAll js/document "mouseup")
-  (events/removeAll js/document "mousemove"))
-
-(defn on-js-reload []
-  (teardown)
-  (mount/stop))
-
-(mount/in-cljc-mode)
-(mount/start)
