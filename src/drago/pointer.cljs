@@ -34,7 +34,7 @@
   []
   (let [down (mousedown ".square" :begin)
         up (mouseup ".mirror" :release)
-        move (mousemove ".mirror" :move)
+        move (mousemove (.-documentElement js/document) :move)
         out (chan)]
     (go-loop []
       (let [[data channel] (alts! [down up move])

@@ -12,8 +12,9 @@
 
 (defn draw-drag
   [{:keys [element x y]}]
-  (set! (.. element -style -left) (str x "px"))
-  (set! (.. element -style -top) (str y "px")))
+  (when element
+    (set! (.. element -style -left) (str x "px"))
+    (set! (.. element -style -top) (str y "px"))))
 
 (defn draw-end
   [{:keys [element]}]
