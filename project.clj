@@ -13,7 +13,8 @@
                  [mount "0.1.11"]]
 
   :plugins [[lein-figwheel "0.5.9"]
-            [lein-cljsbuild "1.1.5" :exclusions [[org.clojure/clojure]]]]
+            [lein-cljsbuild "1.1.5" :exclusions [[org.clojure/clojure]]]
+            [lein-doo "0.1.7"]]
 
   :source-paths ["src"]
 
@@ -41,6 +42,11 @@
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;; https://github.com/binaryage/cljs-devtools
                            :preloads [devtools.preload]}}
+               {:id "test"
+                :source-paths ["src" "test"]
+                :compiler {:main drago.runner
+                           :output-to "resources/public/js/testable.js"
+                           :optimizations :none}}
                ;; This next build is an compressed minified build for
                ;; production. You can build this with:
                ;; lein cljsbuild once min
