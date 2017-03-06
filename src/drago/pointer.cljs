@@ -11,8 +11,8 @@
    the event target, and the event document"
   [event document]
   (let [target (.-target event)
-        x (.-clientX event)
-        y (.-clientY event)
+        x (.-screenX event)
+        y (.-screenY event)
         coords (Coordinate. x y)]
     (->PointerMessage coords target document)))
 
@@ -34,7 +34,10 @@
   []
   (let [down (mousedown ".square" :begin)
         up (mouseup ".mirror" :release)
-        move (mousemove (.-documentElement js/document) :move)
+        move (mousemove
+               [(.-documentElement js/document)
+                (.. (.getElementById js/document "frame") -contentWindow -document)]
+               :move)
         out (chan)]
     (go-loop []
       (let [[data channel] (alts! [down up move])
