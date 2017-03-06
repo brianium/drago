@@ -1,5 +1,5 @@
 (ns drago.streams-test
-  (:require [cljs.test :refer-macros [deftest is testing use-fixtures async]]
+  (:require [cljs.test :refer-macros [deftest is use-fixtures async]]
             [cljs.core.async :refer [<!]]
             [goog.dom :as dom]
             [drago.streams :as streams])

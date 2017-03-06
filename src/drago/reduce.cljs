@@ -6,11 +6,11 @@
   (.cloneNode elem true))
 
 (defn- position-clone
-  [clone rect]  
+  [clone rect]
   (set! (.. clone -style -left) (str (.-left rect) "px"))
   (set! (.. clone -style -top) (str (.-top rect) "px")))
 
-(defn press
+(defn begin
   "Sets up initial state for drag operations. The drag target is cloned here for performance reasons
    and passed as part of the drag state"
   [{:keys [target point] :as state}]
@@ -38,7 +38,7 @@
 
 (defn reduce-state [state]
   (condp = (:name state)
-    :begin (press state)
+    :begin (begin state)
     :move (move state)
     :release (release state)
     state))

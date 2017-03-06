@@ -46,6 +46,7 @@
                 :source-paths ["src" "test"]
                 :compiler {:main drago.runner
                            :output-to "resources/public/js/testable.js"
+                           :output-dir "resources/public/js/compiled/test-out"
                            :optimizations :none}}
                ;; This next build is an compressed minified build for
                ;; production. You can build this with:
