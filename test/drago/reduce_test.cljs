@@ -3,10 +3,10 @@
             [goog.dom :as dom]
             [goog.style :as style]
             [goog.dom.classlist :as classes]
-            [drago.reduce :refer [begin]])
+            [drago.reduce :refer [begin move release]])
   (:import goog.math.Coordinate))
 
-(use-fixtures :once
+(use-fixtures :each
   {:before (fn []
              (let [element (dom/createElement "div")]
                (set! (.-id element) "clickable")
@@ -37,4 +37,25 @@
       (is (= 24 (.-y (:offset new-state))))
       (is (= 8 (.-left (:rect new-state))))
       (is (= 8 (.-top (:rect new-state)))))))
+
+(deftest move-test
+  (testing "state is returned unmodified if dragging not set"
+    (let [point (Coordinate. 27 32)
+          offset (Coordinate. 19 24)
+          state {:point point :offset offset :dragging false}
+          new-state (move state)]
+      (is (= state new-state))))
+
+  (testing "x and y fields are added for move points if dragging set"
+    (let [point (Coordinate. 27 32)
+          offset (Coordinate. 19 24)
+          state {:point point :offset offset :dragging true}
+          new-state (move state)]
+      (is (= (- 27 19) (:x new-state)))
+      (is (= (- 32 24) (:y new-state))))))
+
+(deftest release-test
+  (testing "it unsets dragging state"
+    (let [new-state (release {:dragging true})]
+      (is (false? (:dragging new-state))))))
 
