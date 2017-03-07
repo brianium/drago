@@ -35,8 +35,7 @@
   (let [down (mousedown ".square" :begin)
         up (mouseup ".mirror" :release)
         move (mousemove
-               [(.-documentElement js/document)
-                (.. (.getElementById js/document "frame") -contentWindow -document)]
+               [(.-documentElement js/document)]
                :move)
         out (chan)]
     (go-loop []
