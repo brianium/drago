@@ -2,6 +2,7 @@
   (:require [mount.core :as mount]
             [cljs.core.async :refer [close!]]
             [goog.events :as events]
+            [goog.dom :as dom]
             [drago.core :refer [drago]]
             [drago.pointer :as ptr])
   (:require-macros [mount.core :refer [defstate]]))
@@ -10,7 +11,11 @@
 
 (mount/in-cljc-mode)
 
-(defstate drag-loop :start (drago {})
+;; develop against a cross frame environment
+(defstate drago-config :start {:move-targets [(.-documentElement js/document)
+                                              (.. (dom/getElement "frame") -contentWindow -document)]})
+
+(defstate drag-loop :start (drago @drago-config)
   :stop (close! @drag-loop))
 
 (defn teardown []

@@ -13,31 +13,37 @@
 
 (defn create-mouse-event
   "Create a MouseEvent to dispatch"
-  [event-type]
-  (let [event (.createEvent js/document "MouseEvent")]
-    (.initMouseEvent event
-      event-type
-      true
-      true
-      js/window
-      nil
-      0 0 0 0
-      false false false false
-      0
-      nil)
-    event))
+  ([event-type bubbles]
+   (let [event (.createEvent js/document "MouseEvent")]
+     (.initMouseEvent event
+       event-type
+       bubbles
+       true
+       js/window
+       nil
+       0 0 0 0
+       false false false false
+       0
+       nil)
+     event))
+  ([event-type]
+   (create-mouse-event event-type true)))
 
 (defn mousedown
   "Dipatch a mouse down event to the given element"
-  [el]
-  (let [event (create-mouse-event "mousedown")]
-    (.dispatchEvent el event)))
+  ([el bubbles]
+   (let [event (create-mouse-event "mousedown" bubbles)]
+     (.dispatchEvent el event)))
+  ([el]
+   (mousedown el true)))
 
 (defn mousemove
   "Dispatches a mousemove event to the element"
-  [el]
-  (let [event (create-mouse-event "mousemove")]
-    (.dispatchEvent el event)))
+  ([el bubbles]
+   (let [event (create-mouse-event "mousemove" bubbles)]
+     (.dispatchEvent el event)))
+  ([el]
+   (mousemove el true)))
 
 (defn mouseup
   "Dispatches a mouseup event to the element"
