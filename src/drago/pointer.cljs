@@ -2,7 +2,8 @@
   (:require [cljs.core.async :refer [chan >! alts!]]
             [drago.streams :refer [stream-factory]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
-  (:import goog.math.Coordinate))
+  (:import goog.math.Coordinate
+           goog.events.BrowserEvent))
 
 (defrecord PointerMessage [point target document])
 
@@ -17,8 +18,14 @@
     (->PointerMessage coords target document)))
 
 ;;;; Pointer Streams
+(defn left-click?
+  "Detect if the event is a left click"
+  [event]
+  (.isButton event (.. BrowserEvent -MouseButton -LEFT)))
+
+;; Mouse down events are only considered if they are from a left click
 (def mousedown
-  (stream-factory "mousedown" pointer-message))
+  (stream-factory "mousedown" pointer-message left-click?))
 
 (def mouseup
   (stream-factory "mouseup" pointer-message))
