@@ -18,20 +18,21 @@
     (->PointerMessage coords target document)))
 
 ;;;; Pointer Streams
-(defn left-click?
-  "Detect if the event is a left click"
+(defn can-start?
+  "Detect if the event is a left click or a touch"
   [event]
-  (.isButton event (.. BrowserEvent -MouseButton -LEFT)))
+  (or (= "touchstart" (.-type event))
+      (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
 
 ;; Mouse down events are only considered if they are from a left click
-(def mousedown
-  (stream-factory "mousedown" pointer-message left-click?))
+(def dragstart
+  (stream-factory (array "mousedown" "touchstart") pointer-message can-start?))
 
-(def mouseup
-  (stream-factory "mouseup" pointer-message))
+(def dragend
+  (stream-factory (array "mouseup" "touchend" "touchcancel") pointer-message))
 
-(def mousemove
-  (stream-factory "mousemove" pointer-message))
+(def dragmove
+  (stream-factory (array "mousemove" "touchmove") pointer-message))
 
 (defonce pointer-state (atom {}))
 
@@ -40,12 +41,12 @@
    pointer events - i.e mouse and touch"
   ([{:keys [move-targets]
      :or {move-targets [(.-documentElement js/document)]}}]
-   (let [down (mousedown ".square" :begin)
-         up (mouseup ".mirror" :release)
-         move (mousemove move-targets :move)
+   (let [start (dragstart ".square" :begin)
+         up (dragend move-targets :release)
+         move (dragmove move-targets :move)
          out (chan)]
      (go-loop []
-       (let [[data channel] (alts! [down up move])
+       (let [[data channel] (alts! [start up move])
              message-name (first data)
              last-message (get @pointer-state :last-message)
              state (swap! pointer-state assoc :last-message message-name)]
