@@ -5,21 +5,25 @@
             [goog.events :as events]
             [drago.test-utils :as utils]
             [drago.pointer :refer [pointer-chan pointer-state]])
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (use-fixtures :each
-  {:before (fn []
-             (let [draggable (dom/createElement "div")
-                   movable (dom/createElement "div")]
-               (utils/append-element draggable "draggable" "square")
-               (utils/append-element movable "movable" "mirror")
-               (reset! pointer-state {})))
-   :after (fn []
-            (utils/remove-element "draggable")
-            (utils/remove-element "movable")
-            (events/removeAll (.-documentElement js/document) "mousemove")
-            (events/removeAll (.-documentElement js/document) "mouseup")
-            (events/removeAll (.-documentElement js/document) "mousedown"))})
+  {:before
+   #(async done
+     (let [draggable (dom/createElement "div")
+           movable (dom/createElement "div")]
+       (utils/append-element draggable "draggable" "square")
+       (utils/append-element movable "movable" "mirror")
+       (reset! pointer-state {})
+       (done)))
+   :after
+   #(async done
+     (utils/remove-element "draggable")
+     (utils/remove-element "movable")
+     (events/removeAll (.-documentElement js/document) "mousemove")
+     (events/removeAll (.-documentElement js/document) "mouseup")
+     (events/removeAll (.-documentElement js/document) "mousedown")
+     (done))})
 
 (deftest pointer-chan-mousedown
   (async done
@@ -68,12 +72,20 @@
             mirror (dom/getElement "movable")
             doc (.-documentElement js/document)
             ch (pointer-chan)]
-        (go-loop [messages []]
+        (go
           (let [[val _] (alts! [ch (timeout 500)])]
-            (when (> (count messages) 2)
-              (is (= [:begin :release :begin] messages))
-              (done))
-            (recur (conj messages (first val)))))
+            (is (= :begin (first val)))))
+
+        (go
+          (let [[val _] (alts! [ch (timeout 500)])]
+            (is (= :release (first val)))))
+
+        (go
+          (let [[val _] (alts! [ch (timeout 500)])]
+            (is (= :begin (first val)))
+            (done)))
+
+        ; fire events in sequence
         (go
           (utils/mousedown square)
           (<! (timeout 1))

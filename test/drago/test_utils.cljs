@@ -13,7 +13,7 @@
 
 (defn create-mouse-event
   "Create a MouseEvent to dispatch"
-  ([event-type bubbles]
+  ([event-type bubbles button]
    (let [event (.createEvent js/document "MouseEvent")]
      (.initMouseEvent event
        event-type
@@ -23,17 +23,21 @@
        nil
        0 0 0 0
        false false false false
-       0
+       button
        nil)
      event))
+  ([event-type bubbles]
+   (create-mouse-event event-type bubbles 0))
   ([event-type]
-   (create-mouse-event event-type true)))
+   (create-mouse-event event-type true 0)))
 
 (defn mousedown
   "Dipatch a mouse down event to the given element"
-  ([el bubbles]
-   (let [event (create-mouse-event "mousedown" bubbles)]
+  ([el bubbles button]
+   (let [event (create-mouse-event "mousedown" bubbles button)]
      (.dispatchEvent el event)))
+  ([el bubbles]
+   (mousedown el bubbles 0))
   ([el]
    (mousedown el true)))
 

@@ -31,18 +31,20 @@
 (defn pointer-chan
   "Creates a channel to function as a single stream of
    pointer events - i.e mouse and touch"
-  [{:keys [move-targets]
-    :or {move-targets [(.-documentElement js/document)]}}]
-  (let [down (mousedown ".square" :begin)
-        up (mouseup ".mirror" :release)
-        move (mousemove move-targets :move)
-        out (chan)]
-    (go-loop []
-      (let [[data channel] (alts! [down up move])
-            message-name (first data)
-            last-message (get @pointer-state :last-message)
-            state (swap! pointer-state assoc :last-message message-name)]
-        (when-not (and (= :move message-name) (= :release last-message))
-          (>! out data)))
-      (recur))
-    out))
+  ([{:keys [move-targets]
+     :or {move-targets [(.-documentElement js/document)]}}]
+   (let [down (mousedown ".square" :begin)
+         up (mouseup ".mirror" :release)
+         move (mousemove move-targets :move)
+         out (chan)]
+     (go-loop []
+       (let [[data channel] (alts! [down up move])
+             message-name (first data)
+             last-message (get @pointer-state :last-message)
+             state (swap! pointer-state assoc :last-message message-name)]
+         (when-not (and (= :move message-name) (= :release last-message))
+           (>! out data)))
+       (recur))
+     out))
+  ([]
+   (pointer-chan {})))

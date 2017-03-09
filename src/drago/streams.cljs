@@ -16,11 +16,13 @@
   "Check if the current event is dispatchable for the given target.
 
   target can be a dom element or a selector string"
-  [event target]
+  [event target pred]
   (let [event-target (.-target event)]
     (if (string? target)
-      (matches? event-target target)
-      true)))
+      (and
+        (matches? event-target target)
+        (pred event))
+      (pred event))))
 
 (defn stream-factory
   "Creates a function capable of creating event streams.
@@ -32,20 +34,22 @@
 
    The returned factory accepts a target that can be a CSS selector,
    an html element, or a sequence of elements"
-  [events message-factory]
-  (fn factory
-    ([target message-name document]
-     (let [ch (chan)
-           selector? (string? target)
-           event-targets [(if selector? document target)]]
-       (doseq [event-target (flatten event-targets)]
-         (events/listen
-           event-target
-           events
-           (fn listener [event]
-             (.preventDefault event)
-             (when (dispatchable? event target)
-               (put! ch [message-name (message-factory event document)]))())))
-       ch))
-    ([target message-name]
-     (factory target message-name js/document))))
+  ([events message-factory pred]
+   (fn factory
+     ([target message-name document]
+      (let [ch (chan)
+            selector? (string? target)
+            event-targets [(if selector? document target)]]
+        (doseq [event-target (flatten event-targets)]
+          (events/listen
+            event-target
+            events
+            (fn listener [event]
+              (.preventDefault event)
+              (when (dispatchable? event target pred)
+                (put! ch [message-name (message-factory event document)])))))
+        ch))
+     ([target message-name]
+      (factory target message-name js/document))))
+  ([events message-factory]
+   (stream-factory events message-factory #(some? %1))))
