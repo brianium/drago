@@ -1,5 +1,6 @@
 (ns drago.reduce
-  (:require [goog.dom.classlist :as classes])
+  (:require [goog.dom.classlist :as classes]
+            [goog.style :as style])
   (:import goog.math.Coordinate))
 
 (defn- clone-node [elem]
@@ -7,8 +8,10 @@
 
 (defn- position-clone
   [clone rect]
-  (set! (.. clone -style -left) (str (.-left rect) "px"))
-  (set! (.. clone -style -top) (str (.-top rect) "px")))
+  (style/setPosition
+    clone
+    (.-left rect)
+    (.-top rect)))
 
 (defn begin
   "Sets up initial state for drag operations. The drag target is cloned here for performance reasons

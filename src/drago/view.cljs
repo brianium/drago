@@ -1,5 +1,6 @@
 (ns drago.view
-  (:require [goog.dom :as dom]))
+  (:require [goog.dom :as dom]
+            [goog.style.transform :as transform]))
 
 (defn- append-element
   [{:keys [document element]}]
@@ -8,8 +9,7 @@
 (defn- position-element
   [{:keys [element x y]}]
   (when element
-    (set! (.. element -style -left) (str x "px"))
-    (set! (.. element -style -top) (str y "px"))))
+    (transform/setTranslation element x y)))
 
 (defn- remove-element
   [{:keys [element]}]
