@@ -1,17 +1,6 @@
-.square {
-    background-color: tomato;
-    cursor: pointer;
-    width: 150px;
-    height: 150px;
-}
-
-.mirror {
+.drago-mirror {
     position: fixed !important;
     margin: 0 !important;
     z-index: 999999 !important;
     opacity: 0.8;
-}
-
-.dragging {
-    opacity:0.5;
 }

@@ -22,8 +22,8 @@
           point (Coordinate. 27 32)
           state {:target element :point point}
           new-state (begin state)
-          clone (:element new-state)]
-      (is (classes/contains clone "mirror"))
+          clone (:mirror new-state)]
+      (is (classes/contains clone "drago-mirror"))
       (is (= "8px" (.. clone -style -left)))
       (is (= "8px" (.. clone -style -top)))))
 
@@ -33,6 +33,7 @@
           state {:target element :point point}
           new-state (begin state)]
       (is (:dragging new-state))
+      (is (= element (:element new-state)))
       (is (= 19 (.-x (:offset new-state))))
       (is (= 24 (.-y (:offset new-state))))
       (is (= 8 (.-left (:rect new-state))))
