@@ -2,6 +2,7 @@
   (:require [cljs.test :refer-macros [deftest async is use-fixtures testing]]
             [cljs.core.async :refer [<! timeout alts!]]
             [goog.dom :as dom]
+            [goog.dom.classlist :as classes]
             [goog.events :as events]
             [drago.test-utils :as utils]
             [drago.pointer :refer [pointer-chan pointer-state]])
@@ -10,15 +11,18 @@
 (use-fixtures :each
   {:before
    #(async done
-     (let [draggable (dom/createElement "div")
-           movable (dom/createElement "div")]
-       (utils/append-element draggable "draggable" "square")
-       (utils/append-element movable "movable" "mirror")
-       (reset! pointer-state {})
-       (done)))
+      (let [container (dom/createElement "div")
+            draggable (dom/createElement "div")
+            movable (dom/createElement "div")]
+        (utils/append-element container "container" "drago-container")
+        (set! (.-id draggable) "draggable")
+        (dom/appendChild container draggable)
+        (utils/append-element movable "movable" "mirror")
+        (reset! pointer-state {})
+        (done)))
    :after
    #(async done
-     (utils/remove-element "draggable")
+     (utils/remove-element "container")
      (utils/remove-element "movable")
      (events/removeAll (.-documentElement js/document) "mousemove")
      (events/removeAll (.-documentElement js/document) "mouseup")

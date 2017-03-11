@@ -13,7 +13,7 @@
 
 ;; develop against a cross frame environment
 (defstate drago-config :start {:move-targets [(.-documentElement js/document)
-                                              (.. (dom/getElement "frame") -contentWindow -document)]})
+                                              (dom/getFrameContentDocument (dom/getElement "frame"))]})
 
 (defstate drag-loop :start (drago @drago-config)
   :stop (close! @drag-loop))

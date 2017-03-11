@@ -1,5 +1,7 @@
 (ns drago.pointer
   (:require [cljs.core.async :refer [chan >! alts!]]
+            [goog.dom :as dom]
+            [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.math.Coordinate
@@ -30,18 +32,31 @@
 
 (defonce pointer-state (atom {}))
 
-(defn can-start?
+(defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"
-  [event]
+  [[event _]]
   (or (= "touchstart" (.-type event))
-      (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
+    (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
+
+(defn- belongs-to-container?
+  [[event containers]]
+  (let [target (.-target event)
+        container (dom/getParentElement target)]
+    (contains containers container)))
+
+(def can-start? (every-pred
+                  is-left-click-or-touch?
+                  belongs-to-container?))
+
+(defonce doc (.-documentElement js/document))
 
 (defn pointer-chan
   "Creates a channel to function as a single stream of
    pointer events - i.e mouse and touch"
-  ([{:keys [move-targets]
-     :or {move-targets [(.-documentElement js/document)]}}]
-   (let [start (dragstart ".square" :begin can-start?)
+  ([{:keys [move-targets drag-containers]
+     :or {move-targets [doc]
+          drag-containers (dom/getElementsByClass "drago-container")}}]
+   (let [start (dragstart doc :begin #(can-start? [%1 drag-containers]))
          up (dragend move-targets :release)
          move (dragmove move-targets :move)
          out (chan)]
