@@ -20,7 +20,6 @@
     (->PointerMessage coords target document)))
 
 ;;;; Pointer Streams
-
 (def dragstart
   (stream-factory (array "mousedown" "touchstart") pointer-message))
 
