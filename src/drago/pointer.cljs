@@ -18,15 +18,9 @@
     (->PointerMessage coords target document)))
 
 ;;;; Pointer Streams
-(defn can-start?
-  "Detect if the event is a left click or a touch"
-  [event]
-  (or (= "touchstart" (.-type event))
-      (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
 
-;; Mouse down events are only considered if they are from a left click
 (def dragstart
-  (stream-factory (array "mousedown" "touchstart") pointer-message can-start?))
+  (stream-factory (array "mousedown" "touchstart") pointer-message))
 
 (def dragend
   (stream-factory (array "mouseup" "touchend" "touchcancel") pointer-message))
@@ -36,12 +30,18 @@
 
 (defonce pointer-state (atom {}))
 
+(defn can-start?
+  "Detect if the event is a left click or a touch"
+  [event]
+  (or (= "touchstart" (.-type event))
+      (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
+
 (defn pointer-chan
   "Creates a channel to function as a single stream of
    pointer events - i.e mouse and touch"
   ([{:keys [move-targets]
      :or {move-targets [(.-documentElement js/document)]}}]
-   (let [start (dragstart ".square" :begin)
+   (let [start (dragstart ".square" :begin can-start?)
          up (dragend move-targets :release)
          move (dragmove move-targets :move)
          out (chan)]

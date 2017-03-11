@@ -29,7 +29,6 @@
 
 ;; defines a stream factory to test
 (defonce factory (streams/stream-factory "mousedown" test-message))
-(defonce filtered-factory (streams/stream-factory "mousedown" test-message left-click?))
 
 (deftest receiving-event-messages
   (async done
@@ -44,7 +43,7 @@
 (deftest filtering-messages
   (testing "events that meet criteria are sent"
     (async done
-      (let [ch (filtered-factory "#clickable" :begin)]
+      (let [ch (factory "#clickable" :begin left-click?)]
         (go
           (let [[val _] (alts! [ch (timeout 500)])
                 name (first val)]
@@ -54,7 +53,7 @@
 
   (testing "events that do not meet criteria are rejected"
     (async done
-      (let [ch (filtered-factory "#clickable" :begin)]
+      (let [ch (factory "#clickable" :begin left-click?)]
         (go
           (let [[val _] (alts! [ch (timeout 500)])
                 name (first val)]

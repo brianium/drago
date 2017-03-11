@@ -21,3 +21,12 @@ h1 {
     top:0;
     bottom:0;
 }
+
+#container {
+    border: 1px dashed black;
+    cursor: pointer;
+    margin: 0 auto;
+    padding: 5px;
+    width: 250px;
+    height: 250px;
+}

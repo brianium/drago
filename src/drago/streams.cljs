@@ -34,9 +34,9 @@
 
    The returned factory accepts a target that can be a CSS selector,
    an html element, or a sequence of elements"
-  ([events message-factory pred]
+  ([events message-factory]
    (fn factory
-     ([target message-name document]
+     ([target message-name pred document]
       (let [ch (chan)
             selector? (string? target)
             event-targets [(if selector? document target)]]
@@ -49,7 +49,9 @@
               (when (dispatchable? event target pred)
                 (put! ch [message-name (message-factory event document)])))))
         ch))
+
      ([target message-name]
-      (factory target message-name js/document))))
-  ([events message-factory]
-   (stream-factory events message-factory #(some? %1))))
+      (factory target message-name #(some? %1)))
+     
+     ([target message-name pred]
+      (factory target message-name pred js/document)))))
