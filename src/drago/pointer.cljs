@@ -30,8 +30,7 @@
 (def dragmove
   (stream-factory (array "mousemove" "touchmove") pointer-message))
 
-(defonce pointer-state (atom {}))
-
+;;;; Stream Filters
 (defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"
   [[event _]]
@@ -48,20 +47,25 @@
                   is-left-click-or-touch?
                   belongs-to-container?))
 
+;;;; Global State
 (defonce doc (.-documentElement js/document))
+(defonce pointer-state (atom {}))
 
-(defn pointer-chan
-  "Creates a channel to function as a single stream of
-   pointer events - i.e mouse and touch"
-  ([{:keys [move-targets drag-containers]
+(defn- channels
+  "Returns a vector of channels representing mouse and touch events"
+  [{:keys [move-targets drag-containers]
      :or {move-targets [doc]
           drag-containers (dom/getElementsByClass "drago-container")}}]
-   (let [start (dragstart doc :begin #(can-start? [%1 drag-containers]))
-         up (dragend move-targets :release)
-         move (dragmove move-targets :move)
-         out (chan)]
+  [(dragstart doc :begin #(can-start? [%1 drag-containers]))
+   (dragend move-targets :release)
+   (dragmove move-targets :move)])
+
+(defn pointer-chan
+  "Returns a single channel that receives touch and mouse messages"
+  ([config]
+   (let [event-channels (channels config) out (chan)]
      (go-loop []
-       (let [[data channel] (alts! [start up move])
+       (let [[data channel] (alts! event-channels)
              message-name (first data)
              last-message (get @pointer-state :last-message)
              state (swap! pointer-state assoc :last-message message-name)]
