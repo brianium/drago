@@ -52,12 +52,12 @@
 
 (defn- channels
   "Returns a vector of channels representing mouse and touch events"
-  [{:keys [move-targets drag-containers]
-     :or {move-targets [doc]
+  [{:keys [documents drag-containers]
+     :or {documents [doc]
           drag-containers (dom/getElementsByClass "drago-container")}}]
-  [(dragstart doc :begin #(can-start? [%1 drag-containers]))
-   (dragend move-targets :release)
-   (dragmove move-targets :move)])
+  [(dragstart documents :begin #(can-start? [%1 drag-containers]))
+   (dragend documents :release)
+   (dragmove documents :move)])
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"

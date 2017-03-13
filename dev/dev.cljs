@@ -11,9 +11,15 @@
 
 (mount/in-cljc-mode)
 
+(defonce doc (.-documentElement js/document))
+(defonce iframe (dom/getElement "frame"))
+(defonce iframe-doc (dom/getFrameContentDocument iframe))
+
 ;; develop against a cross frame environment
-(defstate drago-config :start {:move-targets [(.-documentElement js/document)
-                                              (dom/getFrameContentDocument (dom/getElement "frame"))]})
+(defstate drago-config :start {:documents [doc iframe-doc]
+                               :drag-containers (array
+                                                  (dom/getElementByClass "drago-container")
+                                                  (dom/getElementByClass "frame-container" iframe-doc))})
 
 (defstate drag-loop :start (drago @drago-config)
   :stop (close! @drag-loop))
