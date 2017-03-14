@@ -4,13 +4,36 @@
             [goog.style :as style]
             [goog.style.transform :as transform]))
 
+(defn- in-iframe?
+  [document]
+  (not= document js/document))
+
+(defn- get-frame
+  [doc]
+  (let [frame-name (.. doc -defaultView -name)]
+    (when-not (empty? frame-name)
+      (.querySelector js/document "[name=preview]"))))
+
+(defn- offset-frame
+  [x y frame]
+  (let [rect (.getBoundingClientRect frame)
+        fx (.-left rect)
+        fy (.-top rect)]
+    {:x (+ x fx) :y (+ y fy)}))
+
+(defn- position
+  [rect owner-document]
+  (let [x (.-left rect)
+        y (.-top rect)]
+    (if-let [frame (get-frame owner-document)]
+      (offset-frame x y frame)
+      {:x x :y y})))
+
 ;;; Draw begin state
 (defn- init-clone-position
-  [{:keys [mirror rect]}]
-  (style/setPosition
-    mirror
-    (.-left rect)
-    (.-top rect)))
+  [{:keys [mirror rect owner-document]}]
+  (let [{:keys [x y]} (position rect owner-document)]
+    (style/setPosition mirror x y)))
 
 (defn- append-element
   [{:keys [document mirror rect]}]

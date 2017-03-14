@@ -1,17 +1,11 @@
 (ns drago.reduce
-  (:require [goog.dom.classlist :as classes]
+  (:require [goog.dom :as dom]
+            [goog.dom.classlist :as classes]
             [goog.style :as style])
   (:import goog.math.Coordinate))
 
 (defn- clone-node [elem]
   (.cloneNode elem true))
-
-(defn- position-clone
-  [clone rect]
-  (style/setPosition
-    clone
-    (.-left rect)
-    (.-top rect)))
 
 (defn begin
   "Sets up initial state for drag operations. The drag target is cloned here for performance reasons
@@ -20,11 +14,11 @@
   (let [rect (.getBoundingClientRect target)
         clone (clone-node target)]
     (classes/add clone "drago-mirror")
-    (position-clone clone rect)
     (-> state
         (assoc :dragging true)
         (assoc :mirror clone)
         (assoc :element target)
+        (assoc :owner-document (dom/getOwnerDocument target))
         (assoc :rect rect)
         (assoc :offset (Coordinate. (- (.-x point) (.-left rect))
                                     (- (.-y point) (.-top rect)))))))
