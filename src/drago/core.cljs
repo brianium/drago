@@ -18,6 +18,8 @@
      (go-loop [state start-state]
        (render state)
        (let [[name message] (<! pointer-chan)]
+         (when (= name :over)
+           (.log js/console (str name)))
          (recur (reduce-state (merge state {:name name
                                             :target (:target message)
                                             :document (:document message)

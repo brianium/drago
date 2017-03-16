@@ -29,6 +29,9 @@
 (def dragmove
   (stream-factory (array "mousemove" "touchmove") pointer-message))
 
+(def mouseover
+  (stream-factory "mouseover" pointer-message))
+
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"

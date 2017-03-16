@@ -13,13 +13,10 @@
 
 (defonce doc (.-documentElement js/document))
 (defonce iframe (dom/getElement "frame"))
-(defonce iframe-doc (dom/getFrameContentDocument iframe))
 
-;; develop against a cross frame environment
-(defstate drago-config :start {:documents [doc iframe-doc]
-                               :drag-containers (array
-                                                  (dom/getElementByClass "drago-container")
-                                                  (dom/getElementByClass "frame-container" iframe-doc))})
+(if iframe
+  (defstate drago-config :start {:documents [doc (dom/getFrameContentDocument iframe)]})
+  (defstate drago-config :start {}))
 
 (defstate drag-loop :start (drago @drago-config)
   :stop (close! @drag-loop))
@@ -29,6 +26,8 @@
   (events/removeAll js/document "mousedown")
   (events/removeAll js/document "mouseup")
   (events/removeAll js/document "mousemove")
+  (events/removeAll js/document "mouseover")
+  (events/removeAll js/document "mouseenter")
   (mount/stop))
 
 (defn setup []

@@ -18,10 +18,9 @@
         (assoc :dragging true)
         (assoc :mirror clone)
         (assoc :element target)
-        (assoc :owner-document (dom/getOwnerDocument target))
         (assoc :rect rect)
-        (assoc :offset (Coordinate. (- (.-x point) (.-left rect))
-                                    (- (.-y point) (.-top rect)))))))
+        (assoc :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
+                                    (- (.-y point) (.-offsetTop target)))))))
 (defn move
   [{:keys [point offset dragging rect] :as state}]
   (if dragging
