@@ -47,17 +47,7 @@
           (let [[name _] (<! ch)]
             (is (= :move name))
             (done)))
-        (utils/mousemove (.-documentElement js/document)))))
-
-  (testing "additional mousemove targets"
-    (async done
-      (let [other-element (dom/getElement "movable")
-            ch (pointer-chan {:documents [other-element]})]
-        (go
-          (let [[val _] (alts! [ch (timeout 500)])]
-            (is (= :move (first val)))
-            (done)))
-        (utils/mousemove other-element false)))))
+        (utils/mousemove (.-documentElement js/document))))))
 
 (deftest pointer-chan-mouseup
   (async done

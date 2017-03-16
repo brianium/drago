@@ -14,8 +14,9 @@
 (defonce doc (.-documentElement js/document))
 (defonce iframe (dom/getElement "frame"))
 
+;;; define configuration based on whether the script is running in an iframe or not
 (if iframe
-  (defstate drago-config :start {:documents [doc (dom/getFrameContentDocument iframe)]})
+  (defstate drago-config :start {:frames [iframe]})
   (defstate drago-config :start {}))
 
 (defstate drag-loop :start (drago @drago-config)

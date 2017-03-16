@@ -29,9 +29,6 @@
 (def dragmove
   (stream-factory (array "mousemove" "touchmove") pointer-message))
 
-(def mouseover
-  (stream-factory "mouseover" pointer-message))
-
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"
@@ -50,17 +47,18 @@
                   belongs-to-container?))
 
 ;;;; Global State
-(defonce doc (.-documentElement js/document))
 (defonce pointer-state (atom {}))
 
 (defn- channels
   "Returns a vector of channels representing mouse and touch events"
-  [{:keys [documents drag-containers]
-     :or {documents [doc]
+  [{:keys [frames drag-containers]
+     :or {frames []
           drag-containers (dom/getElementsByClass "drago-container")}}]
-  [(dragstart documents :begin #(can-start? [%1 drag-containers]))
-   (dragend documents :release)
-   (dragmove documents :move)])
+  (let [frame-documents (map dom/getFrameContentDocument frames)
+        documents (concat [js/document] frame-documents)]
+    [(dragstart documents :begin #(can-start? [%1 drag-containers]))
+     (dragend documents :release)
+     (dragmove documents :move)]))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
