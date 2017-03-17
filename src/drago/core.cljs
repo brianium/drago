@@ -1,6 +1,7 @@
 (ns drago.core
-  (:require [cljs.core.async :refer [<!]]
+  (:require [cljs.core.async :refer [<! alts!]]
             [drago.pointer :as ptr]
+            [drago.frames :as frames]
             [drago.reduce :refer [reduce-state]]
             [drago.view :refer [render]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
@@ -14,14 +15,14 @@
    (drago config {}))
   
   ([config start-state]
-   (let [pointer-chan (ptr/pointer-chan config)]
+   (let [pointer-chan (ptr/pointer-chan config)
+         frame-chan (frames/frame-chan config)]
      (go-loop [state start-state]
        (render state)
-       (let [[name message] (<! pointer-chan)]
-         (when (= name :over)
-           (.log js/console (str name)))
-         (recur (reduce-state (merge state {:name name
+       (let [[data channel] (alts! [pointer-chan frame-chan])
+             message-name (first data)
+             message (second data)]
+         (recur (reduce-state (merge state {:name message-name
                                             :target (:target message)
-                                            :document (:document message)
                                             :point (:point message)}))))))))
 

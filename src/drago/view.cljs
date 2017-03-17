@@ -13,9 +13,9 @@
     (.-top rect)))
 
 (defn- append-element
-  [{:keys [document mirror rect]}]
+  [{:keys [mirror rect]}]
   (style/setSize mirror (.-width rect) (.-height rect))
-  (dom/appendChild (.-body document) mirror))
+  (dom/appendChild (.-body js/document) mirror))
 
 (defn- add-start-classes
   [{:keys [element]}]
@@ -46,9 +46,15 @@
 (def release
   (juxt remove-element remove-start-classes))
 
+(defn frame-move
+  [{:keys [target dragging]}]
+  (when (and dragging (classes/contains target "drago-container"))
+    (style/setStyle target "background-color" "pink")))
+
 (defn render [{:keys [name] :as data}]
   (case name
     :begin (begin data)
     :move (position-element data)
     :release (release data)
+    :frame-move (frame-move data)
     ""))

@@ -3,4 +3,5 @@
     margin: 0 !important;
     z-index: 999999 !important;
     opacity: 0.8;
+    pointer-events: none;
 }
