@@ -23,27 +23,21 @@
         (assoc :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
                                     (- (.-y point) (.-offsetTop target)))))))
 (defn move
-  [{:keys [point offset dragging rect] :as state}]
-  (if dragging
-    (-> state
-        (assoc :x (- (.-x point) (.-x offset)))
-        (assoc :y (- (.-y point) (.-y offset))))
-    state))
+  [{:keys [point offset dragging target] :as state}]
+  (cond-> state
+    dragging
+      (-> (assoc :x (- (.-x point) (.-x offset)))
+          (assoc :y (- (.-y point) (.-y offset))))
+    (and dragging (classes/contains target "drago-container"))
+      (assoc :container target)))
 
 (defn release
   [state]
   (assoc state :dragging false))
-
-(defn over
-  [{:keys [target dragging] :as state}]
-  (if dragging
-    (assoc state :container target)
-    state))
 
 (defn reduce-state [state]
   (condp = (:name state)
     :begin (begin state)
     :move (move state)
     :release (release state)
-    :over (over state)
     state))

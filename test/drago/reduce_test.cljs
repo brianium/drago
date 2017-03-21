@@ -43,17 +43,35 @@
   (testing "state is returned unmodified if dragging not set"
     (let [point (Coordinate. 27 32)
           offset (Coordinate. 19 24)
-          state {:point point :offset offset :dragging false}
+          element (dom/getElement "clickable")
+          state {:point point :offset offset :dragging false :target element}
           new-state (move state)]
       (is (= state new-state))))
 
   (testing "x and y fields are added for move points if dragging set"
     (let [point (Coordinate. 27 32)
           offset (Coordinate. 19 24)
-          state {:point point :offset offset :dragging true}
+          element (dom/getElement "clickable")
+          state {:point point :offset offset :dragging true :target element}
           new-state (move state)]
       (is (= (- 27 19) (:x new-state)))
-      (is (= (- 32 24) (:y new-state))))))
+      (is (= (- 32 24) (:y new-state)))))
+
+  (testing "container element is added to state if dragging and present"
+    (let [point (Coordinate. 1 1)
+          offset (Coordinate. 1 1)
+          element (dom/getElement "clickable")
+          state {:point point :offset offset :dragging true :target element}]
+      (classes/add element "drago-container")
+      (is (= (:container (move state)) element))))
+
+  (testing "container element is not added to state if not dragging"
+    (let [point (Coordinate. 1 1)
+          offset (Coordinate. 1 1)
+          element (dom/getElement "clickable")
+          state {:point point :offset offset :dragging false :target element}]
+      (classes/add element "drago-container")
+      (is (false? (contains? (move state) :container))))))
 
 (deftest release-test
   (testing "it unsets dragging state"

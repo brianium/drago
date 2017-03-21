@@ -33,6 +33,14 @@
       (- x (.-left rect))
       (- y (.-top rect)))))
 
+(defn- over-container
+  [{:keys [container]}]
+  (when container
+    (classes/add container "drago-over")))
+
+(def move
+  (juxt position-element over-container))
+
 ;;; Draw release state
 (defn- remove-element
   [{:keys [mirror]}]
@@ -46,16 +54,9 @@
 (def release
   (juxt remove-element remove-start-classes))
 
-;;; Draw collision state
-(defn over
-  [{:keys [container]}]
-  (when container
-    (classes/add container "drago-over")))
-
 (defn render [{:keys [name] :as data}]
   (case name
     :begin (begin data)
-    :move (position-element data)
+    :move (move data)
     :release (release data)
-    :over (over data)
     ""))

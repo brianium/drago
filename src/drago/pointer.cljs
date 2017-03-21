@@ -54,12 +54,6 @@
                   is-left-click-or-touch?
                   belongs-to-container?))
 
-(defn over?
-  "Checks if the pointer is over a drag container"
-  [event]
-  (let [target (.-target event)]
-    (is-container? target)))
-
 ;;;; Global State
 (defonce pointer-state (atom {}))
 
@@ -71,8 +65,7 @@
         documents (concat [js/document] frame-documents)]
     [(begin documents :begin can-start?)
      (release documents :release)
-     (move documents :move)
-     (over documents :over over?)]))
+     (move documents :move)]))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
