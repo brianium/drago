@@ -18,6 +18,7 @@
         (assoc :dragging true)
         (assoc :mirror clone)
         (assoc :element target)
+        (assoc :document (dom/getOwnerDocument target))
         (assoc :rect rect)
         (assoc :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
                                     (- (.-y point) (.-offsetTop target)))))))
@@ -33,9 +34,16 @@
   [state]
   (assoc state :dragging false))
 
+(defn over
+  [{:keys [target dragging] :as state}]
+  (if dragging
+    (assoc state :container target)
+    state))
+
 (defn reduce-state [state]
   (condp = (:name state)
     :begin (begin state)
     :move (move state)
     :release (release state)
+    :over (over state)
     state))

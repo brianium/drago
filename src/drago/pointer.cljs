@@ -1,6 +1,7 @@
 (ns drago.pointer
   (:require [cljs.core.async :refer [chan >! alts!]]
             [goog.dom :as dom]
+            [goog.dom.classlist :as classes]
             [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
@@ -29,36 +30,49 @@
 (def move
   (stream-factory (array "mousemove" "touchmove") pointer-message))
 
+(def over
+  (stream-factory (array "mousemove" "touchmove") pointer-message))
+
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"
-  [[event _]]
+  [event]
   (or (= "touchstart" (.-type event))
     (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
 
+(defn- is-container?
+  [container]
+  (classes/contains container "drago-container"))
+
 (defn- belongs-to-container?
-  [[event containers]]
+  [event]
   (let [target (.-target event)
         container (dom/getParentElement target)]
-    (contains containers container)))
+    (is-container? container)))
 
 (def can-start? (every-pred
                   is-left-click-or-touch?
                   belongs-to-container?))
+
+(defn over?
+  "Checks if the pointer is over a drag container"
+  [event]
+  (let [target (.-target event)]
+    (is-container? target)))
 
 ;;;; Global State
 (defonce pointer-state (atom {}))
 
 (defn- channels
   "Returns a vector of channels representing drag events"
-  [{:keys [frames drag-containers]
-     :or {frames []
-          drag-containers (dom/getElementsByClass "drago-container")}}]
+  [{:keys [frames]
+     :or {frames []}}]
   (let [frame-documents (map dom/getFrameContentDocument frames)
         documents (concat [js/document] frame-documents)]
-    [(begin documents :begin #(can-start? [%1 drag-containers]))
+    [(begin documents :begin can-start?)
      (release documents :release)
-     (move documents :move)]))
+     (move documents :move)
+     (over documents :over over?)]))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"

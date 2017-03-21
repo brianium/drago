@@ -41,6 +41,10 @@ h1 {
     bottom:0;
 }
 
+.frame-container.drago-over {
+    background-color: #F012BE;
+}
+
 #container {
     border: 1px dashed black;
     cursor: pointer;
