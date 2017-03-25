@@ -4,15 +4,12 @@
             [goog.style :as style])
   (:import goog.math.Coordinate))
 
-(defn- clone-node [elem]
-  (.cloneNode elem true))
-
 (defn begin
   "Sets up initial state for drag operations. The drag target is cloned here for performance reasons
    and passed as part of the drag state"
   [{:keys [target point] :as state}]
   (let [rect (.getBoundingClientRect target)
-        clone (clone-node target)]
+        clone (.cloneNode target true)]
     (classes/add clone "drago-mirror")
     (-> state
         (assoc :dragging true)
