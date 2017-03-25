@@ -51,9 +51,26 @@
                   is-left-click-or-touch?
                   belongs-to-container?))
 
+(defn is-leaving?
+  "Check if the message represents leaving a drag container"
+  [message prev current]
+  (let [[message-name _] message
+        different-elements? (and (= :move message-name) (not= current prev))]
+    (if different-elements?
+      (is-container? prev)
+      false)))
+
 ;;;; Global State
 (defonce pointer-state (atom {}))
 
+(defn- update-pointer-state
+  "Updates the pointer state atom with relevant message data"
+  [[message-name body]]
+  (let [{:keys [target]} body]
+    (swap! pointer-state merge
+      {:name message-name :target target})))
+
+;;;; Channels
 (defn- channels
   "Returns a vector of channels representing drag events"
   [{:keys [frames]
@@ -63,22 +80,6 @@
     [(begin documents :begin can-start?)
      (release documents :release)
      (move documents :move)]))
-
-(defn- update-pointer-state
-  "Updates the pointer state atom with relevant message data"
-  [[message-name body]]
-  (let [{:keys [target]} body]
-    (swap! pointer-state merge
-      {:name message-name :target target})))
-
-(defn is-leaving?
-  "Check if the message represents leaving a drag container"
-  [message prev current]
-  (let [[message-name _] message
-        different-elements? (and (= :move message-name) (not= current prev))]
-    (if different-elements?
-      (is-container? prev)
-      false)))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
