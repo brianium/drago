@@ -41,6 +41,12 @@
 (def move
   (juxt position-element over-container))
 
+;;; Draw leave state
+(defn leave
+  [{:keys [previous-container]}]
+  (when previous-container
+    (classes/remove previous-container "drago-over")))
+
 ;;; Draw release state
 (defn- remove-element
   [{:keys [mirror]}]
@@ -52,18 +58,12 @@
     (classes/remove element "drago-dragging")))
 
 (def release
-  (juxt remove-element remove-start-classes))
-
-;;; Draw leave state
-(defn leave
-  [{:keys [previous-container]}]
-  (when previous-container
-    (classes/remove previous-container "drago-over")))
+  (juxt remove-element remove-start-classes leave))
 
 (defn render [{:keys [name] :as data}]
   (case name
     :begin (begin data)
     :move (move data)
-    :release (release data)
     :leave (leave data)
+    :release (release data)
     ""))

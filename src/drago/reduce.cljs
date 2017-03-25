@@ -36,8 +36,13 @@
 
 (defn release
   "Updates state when the pointer is released"
-  [state]
-  (assoc state :dragging false))
+  [{:keys [container] :as state}]
+  (-> state
+      (assoc :dragging false)
+      (as-> state (if container
+                    (assoc state :previous-container container)
+                    state))
+      (dissoc :container)))
 
 (defn leave
   "Update state when the pointer leaves a drag container"

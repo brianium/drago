@@ -76,5 +76,11 @@
 (deftest release-test
   (testing "it unsets dragging state"
     (let [new-state (release {:dragging true})]
-      (is (false? (:dragging new-state))))))
+      (is (false? (:dragging new-state)))))
+  
+  (testing "it sets an existing container to the previous container"
+    (let [container []
+          new-state (release {:dragging true
+                              :container container})]
+      (is (= container (:previous-container new-state))))))
 
