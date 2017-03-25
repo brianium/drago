@@ -72,8 +72,9 @@
       {:name message-name :target target})))
 
 (defn is-leaving?
+  "Check if the message represents leaving a drag container"
   [message prev current]
-  (let [[message-name body] message
+  (let [[message-name _] message
         different-elements? (and (= :move message-name) (not= current prev))]
     (if different-elements?
       (is-container? prev)

@@ -29,7 +29,7 @@
      (events/removeAll (.-documentElement js/document) "mousedown")
      (done))})
 
-(deftest pointer-chan-mousedown
+(deftest pointer-chan-down
   (async done
     (let [square (dom/getElement "draggable")
           ch (pointer-chan)]
@@ -39,7 +39,7 @@
           (done)))
       (utils/mousedown square))))
 
-(deftest pointer-chan-mousemove
+(deftest pointer-chan-move
   (testing "the document element sends mousemove events"
     (async done
       (let [ch (pointer-chan)]
@@ -49,7 +49,26 @@
             (done)))
         (utils/mousemove (.-documentElement js/document))))))
 
-(deftest pointer-chan-mouseup
+(deftest pointer-chan-leave
+  (testing "moving off a container sends leave message"
+    (async done
+      (let [ch (pointer-chan)
+            container (dom/getElement "container")]
+        (go
+          (let [[name _] (<! ch)]
+            (is (= :move name))))
+
+        (go
+          (let [[name _] (<! ch)]
+            (is (= :leave name))
+            (done)))
+
+        (go
+          (utils/mousemove container)
+          (<! (timeout 1))
+          (utils/mousemove (.-documentElement js/document)))))))
+
+(deftest pointer-chan-release
   (async done
     (let [mirror (dom/getElement "movable")
           ch (pointer-chan)]
