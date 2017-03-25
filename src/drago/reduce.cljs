@@ -35,9 +35,18 @@
   [state]
   (assoc state :dragging false))
 
+(defn leave
+  [{:keys [data dragging] :as state}]
+  (let [{:keys [previous]} data]
+    (if dragging
+      (-> (assoc state :previous-container previous)
+          (dissoc :container))
+      state)))
+
 (defn reduce-state [state]
   (condp = (:name state)
     :begin (begin state)
     :move (move state)
     :release (release state)
+    :leave (leave state)
     state))

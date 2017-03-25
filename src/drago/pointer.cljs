@@ -8,8 +8,6 @@
   (:import goog.math.Coordinate
            goog.events.BrowserEvent))
 
-(defrecord PointerMessage [point target])
-
 (defn pointer-message
   "Creates a pointer message containing a coordinate point,
    the event target, and the event document"
@@ -17,8 +15,8 @@
   (let [target (.-target event)
         x (.-screenX event)
         y (.-screenY event)
-        coords (Coordinate. x y)]
-    (->PointerMessage coords target)))
+        point (Coordinate. x y)]
+    (hash-map :point point :target target)))
 
 ;;;; Pointer Streams
 (def begin
@@ -39,7 +37,9 @@
 
 (defn- is-container?
   [container]
-  (classes/contains container "drago-container"))
+  (if container
+    (classes/contains container "drago-container")
+    false))
 
 (defn- belongs-to-container?
   [event]
@@ -64,17 +64,37 @@
      (release documents :release)
      (move documents :move)]))
 
+(defn- update-pointer-state
+  "Updates the pointer state atom with relevant message data"
+  [[message-name body]]
+  (let [{:keys [target]} body]
+    (swap! pointer-state merge
+      {:name message-name :target target})))
+
+(defn is-leaving?
+  [message prev current]
+  (let [[message-name body] message
+        different-elements? (and (= :move message-name) (not= current prev))]
+    (if different-elements?
+      (is-container? prev)
+      false)))
+
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
   ([config]
-   (let [event-channels (channels config) out (chan)]
+   (let [event-channels (channels config)
+         out (chan)]
      (go-loop []
-       (let [[data channel] (alts! event-channels)
-             message-name (first data)
-             last-message (get @pointer-state :last-message)
-             state (swap! pointer-state assoc :last-message message-name)]
-         (when-not (and (= :move message-name) (= :release last-message))
-           (>! out data)))
+       (let [[message channel] (alts! event-channels)
+             [message-name body] message
+             {:keys [target]} body
+             prev-state @pointer-state
+             leaving? (is-leaving? message (:target prev-state) target)]
+         (update-pointer-state message)
+         (when-not (and (= :move message-name) (= :release (:name prev-state)))
+           (if leaving?
+             (>! out [:leave (assoc body :previous (:target prev-state))])
+             (>! out message))))
        (recur))
      out))
   ([]

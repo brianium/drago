@@ -26,7 +26,7 @@
 
 ;;; Draw move state
 (defn- position-element
-  [{:keys [mirror x y rect]}]
+  [{:keys [mirror x y rect document]}]
   (when mirror
     (transform/setTranslation
       mirror
@@ -54,9 +54,16 @@
 (def release
   (juxt remove-element remove-start-classes))
 
+;;; Draw leave state
+(defn leave
+  [{:keys [previous-container]}]
+  (when previous-container
+    (classes/remove previous-container "drago-over")))
+
 (defn render [{:keys [name] :as data}]
   (case name
     :begin (begin data)
     :move (move data)
     :release (release data)
+    :leave (leave data)
     ""))

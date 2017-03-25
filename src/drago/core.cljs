@@ -17,8 +17,9 @@
    (let [pointer-chan (ptr/pointer-chan config)]
      (go-loop [state start-state]
        (render state)
-       (let [[message-name message] (<! pointer-chan)]
+       (let [[message-name body] (<! pointer-chan)]
          (recur (reduce-state (merge state {:name message-name
-                                            :target (:target message)
-                                            :point (:point message)}))))))))
+                                            :target (:target body)
+                                            :point (:point body)
+                                            :data body}))))))))
 
