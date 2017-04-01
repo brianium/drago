@@ -6,64 +6,77 @@
 
 ;;; Draw begin state
 (defn- init-clone-position
-  [{:keys [mirror target rect]}]
-  (style/setPosition
-    mirror
-    (.-left rect)
-    (.-top rect)))
+  [{:keys [mirror drag-source]} _]
+  (let [rect (:rect drag-source)]
+    (style/setPosition
+      mirror
+      (.-left rect)
+      (.-top rect))))
 
 (defn- append-element
-  [{:keys [mirror rect document]}]
-  (style/setSize mirror (.-width rect) (.-height rect))
-  (dom/appendChild (.-body document) mirror))
+  [{:keys [mirror drag-source]} _]
+  (let [rect (:rect drag-source)
+        document (:document drag-source)]
+    (style/setSize mirror (.-width rect) (.-height rect))
+    (dom/appendChild (.-body document) mirror)))
 
 (defn- add-start-classes
-  [{:keys [element]}]
-  (classes/add element "drago-dragging"))
+  [{:keys [drag-source]} _]
+  (classes/add
+    (:element drag-source)
+    "drago-dragging"))
 
 (def begin
   (juxt init-clone-position append-element add-start-classes))
 
 ;;; Draw move state
 (defn- position-element
-  [{:keys [mirror x y rect document]}]
-  (when mirror
-    (transform/setTranslation
-      mirror
-      (- x (.-left rect))
-      (- y (.-top rect)))))
+  [{:keys [mirror drag-source]} _]
+  (let [rect (:rect drag-source)]
+    (when mirror
+      (transform/setTranslation
+        mirror
+        (- (:x drag-source) (.-left rect))
+        (- (:y drag-source) (.-top rect))))))
 
 (defn- over-container
-  [{:keys [container]}]
-  (when container
-    (classes/add container "drago-over")))
+  [{:keys [drop-target dragging]} _]
+  (let [container (:container drop-target)]
+    (when (and dragging container)
+      (classes/add container "drago-over"))))
 
 (def move
   (juxt position-element over-container))
 
 ;;; Draw leave state
 (defn leave
-  [{:keys [previous-container]}]
-  (when previous-container
-    (classes/remove previous-container "drago-over")))
+  [_ {{:keys [container]} :drop-target}]
+  (when container
+    (classes/remove container "drago-over")))
 
 ;;; Draw release state
 (defn- remove-element
-  [{:keys [mirror]}]
+  [{:keys [mirror]} _]
   (dom/removeNode mirror))
 
 (defn- remove-start-classes
-  [{:keys [element]}]
+  [{{:keys [element]} :drag-source} _]
   (when element
     (classes/remove element "drago-dragging")))
+
+(defn- remove-container-classes
+  [{{:keys [container]} :drop-target} _]
+  (when container
+    (classes/remove container "drago-over")))
 
 (def release
   (juxt remove-element remove-start-classes leave))
 
-(defn render [{:keys [name] :as data}]
+(defn render
+  [{{:keys [name]} :message :as state} prev-state]
   (case name
-    :begin (begin data)
-    :move (move data)
-    :leave (leave data)
-    :release (release data)
+    :begin (begin state prev-state)
+    :move (move state prev-state)
+    :leave (leave state prev-state)
+    :release (release state prev-state)
     ""))

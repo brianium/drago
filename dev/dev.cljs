@@ -9,8 +9,17 @@
 
 (enable-console-print!)
 
-(mount/in-cljc-mode)
+;;; helper functions
+(defn logged
+  "Instruments a function to log its result before returning it"
+  [func]
+  (fn [& args]
+    (let [result (apply func args)]
+      (.log js/console (clj->js result))
+      result)))
 
+;;; set up dev environment - i.e the live example
+(mount/in-cljc-mode)
 (defonce doc (.-documentElement js/document))
 (defonce iframe (dom/getElement "frame"))
 
