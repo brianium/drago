@@ -20,7 +20,7 @@
   (testing "element association via clone"
     (let [element (dom/getElement "clickable")
           point (Coordinate. 27 32)
-          state {:target element :point point}
+          state {:message {:body {:target element :point point}}}
           new-state (begin state)
           clone (:mirror new-state)]
       (is (classes/contains clone "drago-mirror"))
@@ -30,21 +30,25 @@
   (testing "drag state is set"
     (let [element (dom/getElement "clickable")
           point (Coordinate. 27 32)
-          state {:target element :point point}
-          new-state (begin state)]
+          state {:message {:body {:target element :point point}}}
+          new-state (begin state)
+          drag-source (:drag-source new-state)]
       (is (:dragging new-state))
-      (is (= element (:element new-state)))
-      (is (= 19 (.-x (:offset new-state))))
-      (is (= 24 (.-y (:offset new-state))))
-      (is (= 8 (.-left (:rect new-state))))
-      (is (= 8 (.-top (:rect new-state)))))))
+      (is (= element (:element drag-source)))
+      (is (= 19 (.-x (:offset drag-source))))
+      (is (= 24 (.-y (:offset drag-source))))
+      (is (= 8 (.-left (:rect drag-source))))
+      (is (= 8 (.-top (:rect drag-source)))))))
 
 (deftest move-test
   (testing "state is returned unmodified if dragging not set"
     (let [point (Coordinate. 27 32)
           offset (Coordinate. 19 24)
           element (dom/getElement "clickable")
-          state {:point point :offset offset :dragging false :target element}
+          state {:message {:body {:point point
+                                  :target element}}
+                 :drag-srouce {:offset offset}
+                 :dragging false}
           new-state (move state)]
       (is (= state new-state))))
 
@@ -52,35 +56,44 @@
     (let [point (Coordinate. 27 32)
           offset (Coordinate. 19 24)
           element (dom/getElement "clickable")
-          state {:point point :offset offset :dragging true :target element}
-          new-state (move state)]
-      (is (= (- 27 19) (:x new-state)))
-      (is (= (- 32 24) (:y new-state)))))
+          state {:message {:body {:point point
+                                  :target element}}
+                 :drag-source {:offset offset}
+                 :dragging true}
+          new-state (move state)
+          drag-source (:drag-source new-state)]
+      (is (= (- 27 19) (:x drag-source)))
+      (is (= (- 32 24) (:y drag-source)))))
 
   (testing "container element is added to state if dragging and present"
     (let [point (Coordinate. 1 1)
           offset (Coordinate. 1 1)
           element (dom/getElement "clickable")
-          state {:point point :offset offset :dragging true :target element}]
-      (classes/add element "drago-container")
-      (is (= (:container (move state)) element))))
+          state {:message {:body {:point point
+                                  :target element}}
+                 :drag-source {:offset offset}
+                 :dragging true}
+          _  (classes/add element "drago-container")
+          new-state (move state)
+          drop-target (:drop-target new-state)]
+      (is (= (:container drop-target) element))
+      (is (= (:element drop-target) element))))
 
   (testing "container element is not added to state if not dragging"
     (let [point (Coordinate. 1 1)
           offset (Coordinate. 1 1)
           element (dom/getElement "clickable")
-          state {:point point :offset offset :dragging false :target element}]
+          state {:message {:body {:point point
+                                  :target element}}
+                 :drag-source {:offset offset}
+                 :dragging false}
+          new-state (move state)
+          drop-target (:drop-target new-state)]
       (classes/add element "drago-container")
-      (is (false? (contains? (move state) :container))))))
+      (is (false? (contains? drop-target :container))))))
 
 (deftest release-test
   (testing "it unsets dragging state"
     (let [new-state (release {:dragging true})]
-      (is (false? (:dragging new-state)))))
-  
-  (testing "it sets an existing container to the previous container"
-    (let [container []
-          new-state (release {:dragging true
-                              :container container})]
-      (is (= container (:previous-container new-state))))))
+      (is (false? (:dragging new-state))))))
 
