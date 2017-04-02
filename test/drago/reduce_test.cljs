@@ -70,7 +70,7 @@
           offset (Coordinate. 1 1)
           element (dom/getElement "clickable")
           state {:message {:body {:point point
-                                  :target element}}
+                                  :element element}}
                  :drag-source {:offset offset}
                  :dragging true}
           _  (classes/add element "drago-container")
