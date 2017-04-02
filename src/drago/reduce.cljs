@@ -23,15 +23,15 @@
   "Update state based on movement"
   [{:keys [drag-source dragging] :as state}]
   (let [offset (:offset drag-source)
-        {{:keys [target point]} :body} (:message state)]
+        {{:keys [target point element]} :body} (:message state)]
     (if (not dragging)
       state
       (-> state
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))
         (assoc-in [:drag-source :y] (- (.-y point) (.-y offset)))
-        (assoc :drop-target { :element target })
-        (as-> state (if (classes/contains target "drago-container")
-                      (assoc-in state [:drop-target :container] target)
+        (assoc :drop-target { :element element })
+        (as-> state (if (and element (classes/contains element "drago-container"))
+                      (assoc-in state [:drop-target :container] element)
                       state))))))
 
 (defn release

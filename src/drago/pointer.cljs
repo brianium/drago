@@ -3,20 +3,11 @@
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
             [goog.array :refer [contains]]
-            [drago.streams :refer [stream-factory]])
+            [drago.streams :refer [stream-factory]]
+            [drago.message :refer [pointer-message move-message]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.math.Coordinate
            goog.events.BrowserEvent))
-
-(defn pointer-message
-  "Creates a pointer message containing a coordinate point,
-   the event target, and the event document"
-  [event _]
-  (let [target (.-target event)
-        x (.-screenX event)
-        y (.-screenY event)
-        point (Coordinate. x y)]
-    (hash-map :point point :target target)))
 
 ;;;; Pointer Streams
 (def begin
@@ -26,7 +17,7 @@
   (stream-factory (array "mouseup" "touchend" "touchcancel") pointer-message))
 
 (def move
-  (stream-factory (array "mousemove" "touchmove") pointer-message))
+  (stream-factory (array "mousemove" "touchmove") move-message))
 
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
@@ -66,9 +57,9 @@
 (defn- update-pointer-state
   "Updates the pointer state atom with relevant message data"
   [[message-name body]]
-  (let [{:keys [target]} body]
+  (let [{:keys [target element]} body]
     (swap! pointer-state merge
-      {:name message-name :target target})))
+      {:name message-name :target target :element element})))
 
 ;;;; Channels
 (defn- channels
@@ -89,13 +80,14 @@
      (go-loop []
        (let [[message channel] (alts! event-channels)
              [message-name body] message
-             {:keys [target]} body
+             {:keys [element]} body
              prev-state @pointer-state
-             leaving? (is-leaving? message (:target prev-state) target)]
+             last-element (:element prev-state)
+             leaving? (is-leaving? message last-element element)]
          (update-pointer-state message)
          (when-not (and (= :move message-name) (= :release (:name prev-state)))
            (if leaving?
-             (>! out [:leave (assoc body :previous (:target prev-state))])
+             (>! out [:leave (assoc body :previous last-element)])
              (>! out message))))
        (recur))
      out))
