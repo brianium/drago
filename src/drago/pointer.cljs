@@ -3,51 +3,11 @@
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
             [goog.array :refer [contains]]
-            [drago.streams :refer [stream-factory]])
+            [drago.streams :refer [stream-factory]]
+            [drago.message :refer [pointer-message move-message]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.math.Coordinate
            goog.events.BrowserEvent))
-
-(defn pointer-message
-  "Creates a pointer message containing a coordinate point,
-   the event target, and the event document"
-  [event _]
-  (let [target (.-target event)
-        screen-x (.-screenX event)
-        screen-y (.-screenY event)
-        client-x (.-clientX event)
-        client-y (.-clientY event)
-        point (Coordinate. screen-x screen-y)
-        client (Coordinate. client-x client-y)]
-    (hash-map :point point :target target :client client)))
-
-(defmulti element-from-point (fn [element x y] (type element)))
-
-(defmethod element-from-point
-  js/HTMLIFrameElement
-  [iframe x y]
-  (let [rect (.getBoundingClientRect iframe)
-        doc (dom/getFrameContentDocument iframe)
-        left (.-left rect)
-        top (.-top rect)]
-    (.elementFromPoint doc
-      (- x left)
-      (- y top))))
-
-(defmethod element-from-point :default
-  [element _ _]
-  element)
-
-(defn move-message
-  [event _]
-  (let [msg (pointer-message event _)
-        point (:client msg)
-        x (.-x point)
-        y (.-y point)
-        target (:target msg)
-        doc (.-ownerDocument target)
-        element (.elementFromPoint doc x y)]
-    (merge msg {:element (element-from-point element x y)})))
 
 ;;;; Pointer Streams
 (def begin
