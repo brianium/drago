@@ -6,8 +6,7 @@
             [drago.streams :refer [stream-factory]]
             [drago.message :refer [pointer-message move-message]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
-  (:import goog.math.Coordinate
-           goog.events.BrowserEvent))
+  (:import goog.events.BrowserEvent))
 
 ;;;; Pointer Streams
 (def begin
