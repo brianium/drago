@@ -1,7 +1,8 @@
 (ns drago.reduce
   (:require [goog.dom :as dom]
             [goog.dom.classlist :as classes]
-            [goog.style :as style])
+            [goog.style :as style]
+            [drago.dom :refer [find-container]])
   (:import goog.math.Coordinate))
 
 (defn begin
@@ -18,7 +19,8 @@
                              :document (dom/getOwnerDocument target)
                              :rect rect
                              :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
-                                                  (- (.-y point) (.-offsetTop target)))}))))
+                                       (- (.-y point) (.-offsetTop target)))}))))
+
 (defn move
   "Update state based on movement"
   [{:keys [drag-source dragging] :as state}]
@@ -30,8 +32,8 @@
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))
         (assoc-in [:drag-source :y] (- (.-y point) (.-y offset)))
         (assoc :drop-target { :element element })
-        (as-> state (if (and element (classes/contains element "drago-container"))
-                      (assoc-in state [:drop-target :container] element)
+        (as-> state (if-let [container (find-container element)]
+                      (assoc-in state [:drop-target :container] container)
                       state))))))
 
 (defn release

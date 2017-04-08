@@ -57,7 +57,8 @@
           offset (Coordinate. 19 24)
           element (dom/getElement "clickable")
           state {:message {:body {:point point
-                                  :target element}}
+                                  :target element
+                                  :element element}}
                  :drag-source {:offset offset}
                  :dragging true}
           new-state (move state)

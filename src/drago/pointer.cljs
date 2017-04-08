@@ -4,7 +4,8 @@
             [goog.dom.classlist :as classes]
             [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]]
-            [drago.message :refer [pointer-message move-message]])
+            [drago.message :refer [pointer-message move-message]]
+            [drago.dom :refer [is-container? belongs-to-container?]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
 
@@ -25,21 +26,9 @@
   (or (= "touchstart" (.-type event))
     (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
 
-(defn- is-container?
-  [container]
-  (if container
-    (classes/contains container "drago-container")
-    false))
-
-(defn- belongs-to-container?
-  [event]
-  (let [target (.-target event)
-        container (dom/getParentElement target)]
-    (is-container? container)))
-
 (def can-start? (every-pred
                   is-left-click-or-touch?
-                  belongs-to-container?))
+                  #(belongs-to-container? (.-target %1))))
 
 (defn is-leaving?
   "Check if the message represents leaving a drag container"
