@@ -24,11 +24,10 @@
 (defonce iframe (dom/getElement "frame"))
 
 ;;; define configuration based on whether the script is running in an iframe or not
-(if iframe
-  (defstate drago-config :start {:frames [iframe]})
-  (defstate drago-config :start {}))
+(defstate drago-config :start {:frames [iframe]})
 
-(defstate drag-loop :start (drago @drago-config)
+;;; uses identity for a noop render method during development
+(defstate drag-loop :start (drago identity @drago-config)
   :stop (close! @drag-loop))
 
 (defn teardown []

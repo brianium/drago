@@ -2,7 +2,7 @@
   (:require [cljs.core.async :refer [<!]]
             [drago.pointer :as ptr]
             [drago.reduce :refer [reduce-state]]
-            [drago.view :refer [render]])
+            [drago.view :as view])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (defn- update-state
@@ -16,17 +16,18 @@
 
 (defn drago
   "Initialize the people's champion!"
-  ([]
-   (drago {} {}))
+  ([render]
+   (drago render {} {}))
   
-  ([config]
-   (drago config {}))
+  ([render config]
+   (drago render config {}))
   
-  ([config start-state]
+  ([render config start-state]
    (let [pointer-chan (ptr/pointer-chan config)]
      (go-loop [prev-state start-state]
        (let [message (<! pointer-chan)
              new-state (update-state prev-state message)]
+         (view/render new-state prev-state)
          (render new-state prev-state)
          (recur new-state))))))
 
