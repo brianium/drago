@@ -51,7 +51,7 @@
         ch))
 
      ([target message-name]
-      (factory target message-name #(some? %1)))
+      (factory target message-name some?))
      
      ([target message-name pred]
       (factory target message-name pred js/document)))))

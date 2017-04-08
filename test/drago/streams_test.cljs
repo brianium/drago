@@ -25,7 +25,7 @@
 
 ;; defines a stream filter
 (defn left-click? [event]
-  (= (.-button event) 0))
+  (zero? (.-button event)))
 
 ;; defines a stream factory to test
 (defonce factory (streams/stream-factory "mousedown" test-message))

@@ -26,7 +26,7 @@
   [{:keys [drag-source dragging] :as state}]
   (let [offset (:offset drag-source)
         {{:keys [target point element]} :body} (:message state)]
-    (if (not dragging)
+    (if-not dragging
       state
       (-> state
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))
@@ -39,8 +39,7 @@
 (defn release
   "Updates state when the pointer is released"
   [{:keys [container] :as state}]
-  (-> state
-      (assoc :dragging false)))
+  (assoc state :dragging false))
 
 (defn reduce-state
   "The main state reducer. The state of a drag operation at any
