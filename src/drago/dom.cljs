@@ -12,8 +12,10 @@
 (defn belongs-to-container?
   "Check if the dom element's immediate parent is a drago container"
   [element]
-  (let [parent (dom/getParentElement element)]
-    (is-container? parent)))
+  (when element
+    (-> element
+        dom/getParentElement
+        is-container?)))
 
 (defn parent-container
   "Get the drago container that an element belongs to"
