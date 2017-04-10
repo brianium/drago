@@ -19,7 +19,7 @@
                              :document (dom/getOwnerDocument target)
                              :rect rect
                              :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
-                                       (- (.-y point) (.-offsetTop target)))}))))
+                                                  (- (.-y point) (.-offsetTop target)))}))))
 
 (defn move
   "Update state based on movement"
@@ -38,7 +38,7 @@
 
 (defn release
   "Updates state when the pointer is released"
-  [{:keys [container] :as state}]
+  [state]
   (assoc state :dragging false))
 
 (defn reduce-state

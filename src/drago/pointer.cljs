@@ -36,8 +36,7 @@
 (defn- update-pointer-state
   "Updates the pointer state atom with relevant message data"
   [[message-name body]]
-  (let [{:keys [target element]} body]
-    (swap! pointer-state assoc :name message-name)))
+  (swap! pointer-state assoc :name message-name))
 
 ;;;; Channels
 (defn- channels

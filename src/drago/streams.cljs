@@ -27,7 +27,7 @@
 (defn stream-factory
   "Creates a function capable of creating event streams.
   
-  'events' is a any value acceptable by goog.events/listen
+  'events' is any value accepted by goog.events/listen
 
   'message-factory' is a function that creates a message 
    structure. It is passed the event and an html document.
