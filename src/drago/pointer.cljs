@@ -5,7 +5,7 @@
             [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]]
             [drago.message :refer [pointer-message move-message]]
-            [drago.dom :refer [is-container? belongs-to-container?]])
+            [drago.dom :refer [belongs-to-container?]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
 
@@ -30,15 +30,6 @@
                   is-left-click-or-touch?
                   #(belongs-to-container? (.-target %1))))
 
-(defn is-leaving?
-  "Check if the message represents leaving a drag container"
-  [message prev current]
-  (let [[message-name _] message
-        different-elements? (and (= :move message-name) (not= current prev))]
-    (if different-elements?
-      (is-container? prev)
-      false)))
-
 ;;;; Global State
 (defonce pointer-state (atom {}))
 
@@ -46,8 +37,7 @@
   "Updates the pointer state atom with relevant message data"
   [[message-name body]]
   (let [{:keys [target element]} body]
-    (swap! pointer-state merge
-      {:name message-name :target target :element element})))
+    (swap! pointer-state assoc :name message-name)))
 
 ;;;; Channels
 (defn- channels
@@ -68,15 +58,10 @@
      (go-loop []
        (let [[message channel] (alts! event-channels)
              [message-name body] message
-             {:keys [element]} body
-             prev-state @pointer-state
-             last-element (:element prev-state)
-             leaving? (is-leaving? message last-element element)]
+             prev-state @pointer-state]
          (update-pointer-state message)
          (when-not (and (= :move message-name) (= :release (:name prev-state)))
-           (if leaving?
-             (>! out [:leave (assoc body :previous last-element)])
-             (>! out message))))
+           (>! out message)))
        (recur))
      out))
   ([]

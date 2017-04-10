@@ -48,6 +48,5 @@
   (condp = name
     :begin (begin state)
     :move (move state)
-    :release ((drago.dev/logged release) state)
-    :leave state
+    :release (release state)
     state))
