@@ -16,6 +16,9 @@
 
 (defn drago
   "Initialize the people's champion!"
+  ([]
+   (drago identity {} {}))
+  
   ([render]
    (drago render {} {}))
   

@@ -18,8 +18,8 @@
         (assoc :drag-source {:element target
                              :document (dom/getOwnerDocument target)
                              :rect rect
-                             :offset (Coordinate. (- (.-x point) (.-offsetLeft target))
-                                                  (- (.-y point) (.-offsetTop target)))}))))
+                             :offset (Coordinate. (- (.-x point) (.-left rect))
+                                                  (- (.-y point) (.-top rect)))}))))
 
 (defn move
   "Update state based on movement"

@@ -42,12 +42,24 @@
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;; https://github.com/binaryage/cljs-devtools
                            :preloads [devtools.preload]}}
+               
                {:id "test"
                 :source-paths ["src" "test"]
                 :compiler {:main drago.runner
                            :output-to "resources/public/js/testable.js"
                            :output-dir "resources/public/js/compiled/test-out"
                            :optimizations :none}}
+
+               {:id "devcards"
+                :source-paths ["cards" "src"]
+                :figwheel { :devcards true }
+                :compiler {:main "dragocards.start-ui"
+                           :asset-path "js/compiled/cards-out"
+                           :output-to "resources/public/js/compiled/cards.js"
+                           :output-dir "resources/public/js/compiled/cards-out"
+                           :optimizations :none
+                           :source-map-timestamp true}}
+               
                ;; This next build is an compressed minified build for
                ;; production. You can build this with:
                ;; lein cljsbuild once min
@@ -102,7 +114,8 @@
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.0"]
                                   [figwheel-sidecar "0.5.9"]
-                                  [com.cemerick/piggieback "0.2.1"]]
+                                  [com.cemerick/piggieback "0.2.1"]
+                                  [devcards "0.2.3"]]
 
                    :source-paths ["src" "dev"]
                    ;; for CIDER
