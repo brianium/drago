@@ -4,29 +4,31 @@
 
 (defn is-container?
   "Check if the dom element is a drago container"
-  [element]
+  [containers element]
   (if element
-    (classes/contains element "drago-container")
+    (some #(= % element) containers)
     false))
 
 (defn belongs-to-container?
   "Check if the dom element's immediate parent is a drago container"
-  [element]
+  [containers element]
   (if element
-    (-> element
-        dom/getParentElement
-        is-container?)
+    (->> element
+         dom/getParentElement
+         (is-container? containers))
     false))
 
 (defn parent-container
   "Get the drago container that an element belongs to"
-  [element]
-  (dom/getAncestor element is-container?))
+  [containers element]
+  (dom/getAncestor
+    element
+    #(is-container? containers %)))
 
 (defn find-container
   "Find the closest container to the element - including the element itself"
-  [element]
+  [containers element]
   (cond
-    (is-container? element) element
-    (belongs-to-container? element) (parent-container element)
+    (is-container? containers element) element
+    (belongs-to-container? containers element) (parent-container containers element)
     :else nil))

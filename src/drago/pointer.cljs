@@ -22,13 +22,19 @@
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
   "Detect if the event is a left click or a touch"
-  [event]
+  [{:keys [event]}]
   (or (= "touchstart" (.-type event))
     (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
 
+(defn- in-container?
+  "Only elements within containers can be dragged"
+  [{:keys [event containers]}]
+  (let [target (.-target event)]
+    (belongs-to-container? containers target)))
+
 (def can-start? (every-pred
                   is-left-click-or-touch?
-                  #(belongs-to-container? (.-target %1))))
+                  in-container?))
 
 ;;;; Global State
 (defonce pointer-state (atom {}))
@@ -41,27 +47,24 @@
 ;;;; Channels
 (defn- channels
   "Returns a vector of channels representing drag events"
-  [{:keys [frames]
-     :or {frames []}}]
+  [{:keys [frames containers]}]
   (let [frame-documents (map dom/getFrameContentDocument frames)
         documents (concat [js/document] frame-documents)]
-    [(begin documents :begin can-start?)
+    [(begin documents :begin #(can-start? {:event %1 :containers containers}))
      (release documents :release)
      (move documents :move)]))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
-  ([config]
-   (let [event-channels (channels config)
-         out (chan)]
-     (go-loop []
-       (let [[message channel] (alts! event-channels)
-             [message-name body] message
-             prev-state @pointer-state]
-         (update-pointer-state message)
-         (when-not (and (= :move message-name) (= :release (:name prev-state)))
-           (>! out message)))
-       (recur))
-     out))
-  ([]
-   (pointer-chan {})))
+  [config]
+  (let [event-channels (channels config)
+        out (chan)]
+    (go-loop []
+      (let [[message channel] (alts! event-channels)
+            [message-name body] message
+            prev-state @pointer-state]
+        (update-pointer-state message)
+        (when-not (and (= :move message-name) (= :release (:name prev-state)))
+          (>! out message)))
+      (recur))
+    out))
