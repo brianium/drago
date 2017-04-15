@@ -27,7 +27,7 @@
 (defstate drago-config :start {:frames [iframe]})
 
 ;;; uses identity for a noop render method during development
-(defstate drag-loop :start (drago identity @drago-config)
+(defstate drag-loop :start (drago @drago-config)
   :stop (close! @drag-loop))
 
 (defn teardown []
