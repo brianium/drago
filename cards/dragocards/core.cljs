@@ -26,9 +26,9 @@
         (let [left (html "<div class=\"drago-container card-container\">
                             <div class=\"rectangle\"></div>
                           </div>")
-              right (html  "<div class=\"drago-container card-container\">
-                              <div class=\"rectangle\"></div>
-                            </div>")
+              right (html "<div class=\"drago-container card-container\">
+                             <div class=\"rectangle\"></div>
+                           </div>")
               ch (drago {:containers [left right]})]
           (classes/add node "drag-demo")
           (dom/append node left right))))))
