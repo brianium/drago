@@ -3,7 +3,7 @@
             [sablono.core :as sab]
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
-            [drago.core :refer [drago receive]])
+            [drago.core :as drago])
   (:require-macros [devcards.core :refer [defcard dom-node]]))
 
 (defn html [str]
@@ -24,7 +24,7 @@
               right (html "<div class=\"drago-container card-container\">
                              <div class=\"rectangle\"></div>
                            </div>")
-              ch (drago {:containers [left right]})]
+              ch (drago/start {:containers [left right]})]
           (classes/add node "drag-demo")
           (dom/append node left right))))))
 
@@ -40,7 +40,7 @@
   add classes to represent each state.
 
   ```clojure
-  (drago {:containers [left right]})
+  (drago/start {:containers [left right]})
   ```"
   (pointer-detection))
 
@@ -61,10 +61,10 @@
                             </div>
                           </div>")]
           (dom/append node fragment)
-          (drago {:containers [(dom/getElement "parent")
-                               (dom/getElement "parent2")
-                               (dom/getElement "nested")
-                               (dom/getElement "nested2")]}))))))
+          (drago/start {:containers [(dom/getElement "parent")
+                                     (dom/getElement "parent2")
+                                     (dom/getElement "nested")
+                                     (dom/getElement "nested2")]}))))))
 
 (defcard
   "## Nested containers
@@ -72,7 +72,7 @@
   We can even nest containers - making containers themselves draggable.
 
   ```clojure
-  (drago {:containers [parent nested parent2 nested2]})
+  (drago/start {:containers [parent nested parent2 nested2]})
   ```"
   (nested-containers))
 
@@ -100,8 +100,8 @@
                        </ul>
                      </div>")]
           (dom/append node fragment)
-          (receive
-            (drago {:containers [(dom/getElement "toolbox")
+          (drago/listen
+            (drago/start {:containers [(dom/getElement "toolbox")
                                  (dom/getElement "dropzone")]})
             handler))))))
 
@@ -125,7 +125,7 @@
           (.cloneNode (:element drag-source) true)))))
 
   ;; create a drag context and listen for state changes
-  (-> (drago {:containers [toolbox dropzone]})
-      (receive handle-drop))
+  (-> (drago/start {:containers [toolbox dropzone]})
+      (drago/listen handle-drop))
   ```"
   (toolbox handle-drop))

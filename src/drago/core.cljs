@@ -42,7 +42,7 @@
     (close! out)
     (drain! pointer)))
 
-(defn receive
+(defn listen
   "Binds a function to the drag context. The function will be called
   with the new and previous drag state when state changes occur"
   [ctx func]
@@ -51,7 +51,7 @@
       (func new-state prev-state)
       (recur))))
 
-(defn drago
+(defn start
   "Initialize the people's champion!"
   [drago-config]
   (let [config (config/create drago-config)

@@ -2,7 +2,7 @@
   (:require [mount.core :as mount]
             [goog.events :as events]
             [goog.dom :as dom]
-            [drago.core :refer [drago stop!]]
+            [drago.core :as drago]
             [drago.pointer :as ptr])
   (:require-macros [mount.core :refer [defstate]]))
 
@@ -26,8 +26,8 @@
 (defstate drago-config :start {:frames [iframe]})
 
 ;;; uses identity for a noop render method during development
-(defstate drag-context :start (drago @drago-config)
-                       :stop (stop! @drag-context))
+(defstate drag-context :start (drago/start @drago-config)
+                       :stop (drago/stop! @drag-context))
 
 (defn teardown []
   (.log js/console "Teardown")
