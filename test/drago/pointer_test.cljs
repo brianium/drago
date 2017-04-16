@@ -30,10 +30,13 @@
      (events/removeAll (.-documentElement js/document) "mousedown")
      (done))})
 
+(defn- state-atom []
+  (atom {:config (config/create)}))
+
 (deftest pointer-chan-down
   (async done
     (let [square (dom/getElement "draggable")
-          ch (pointer-chan (config/create))]
+          ch (pointer-chan (state-atom))]
       (go
         (let [[name _] (<! ch)]
           (is (= :begin name))
@@ -43,7 +46,7 @@
 (deftest pointer-chan-move
   (testing "the document element sends mousemove events"
     (async done
-      (let [ch (pointer-chan (config/create))]
+      (let [ch (pointer-chan (state-atom))]
         (go
           (let [[name _] (<! ch)]
             (is (= :move name))
@@ -54,7 +57,7 @@
 (comment (deftest pointer-chan-leave
            (testing "moving off a container sends leave message"
              (async done
-               (let [ch (pointer-chan (config/create))
+               (let [ch (pointer-chan (state-atom))
                      container (dom/getElement "container")]
                  (go
                    (let [[name _] (<! ch)]
@@ -73,7 +76,7 @@
 (deftest pointer-chan-release
   (async done
     (let [mirror (dom/getElement "movable")
-          ch (pointer-chan (config/create))]
+          ch (pointer-chan (state-atom))]
       (go
         (let [[name _] (<! ch)]
           (is (= :release name))
@@ -86,7 +89,7 @@
       (let [square (dom/getElement "draggable")
             mirror (dom/getElement "movable")
             doc (.-documentElement js/document)
-            ch (pointer-chan (config/create))]
+            ch (pointer-chan (state-atom))]
         (go
           (let [[val _] (alts! [ch (timeout 500)])]
             (is (= :begin (first val)))))

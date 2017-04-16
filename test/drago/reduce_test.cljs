@@ -50,7 +50,7 @@
                                   :target element}}
                  :drag-srouce {:offset offset}
                  :dragging false}
-          new-state (move state {})]
+          new-state (move state)]
       (is (= state new-state))))
 
   (testing "x and y fields are added for move points if dragging set"
@@ -62,7 +62,7 @@
                                   :element element}}
                  :drag-source {:offset offset}
                  :dragging true}
-          new-state (move state {})
+          new-state (move state)
           drag-source (:drag-source new-state)]
       (is (= (- 27 19) (:x drag-source)))
       (is (= (- 32 24) (:y drag-source)))))
@@ -76,7 +76,7 @@
                  :drag-source {:offset offset}
                  :dragging true}
           _  (classes/add element "drago-container")
-          new-state (move state (config/create {:containers [element]}))
+          new-state (move (merge state {:config (config/create {:containers [element]})}))
           drop-target (:drop-target new-state)]
       (is (= (:container drop-target) element))
       (is (= (:element drop-target) element))))
@@ -89,7 +89,7 @@
                                   :target element}}
                  :drag-source {:offset offset}
                  :dragging false}
-          new-state (move state {})
+          new-state (move state)
           drop-target (:drop-target new-state)]
       (classes/add element "drago-container")
       (is (false? (contains? drop-target :container))))))
