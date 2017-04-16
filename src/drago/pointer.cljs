@@ -47,17 +47,22 @@
 ;;;; Channels
 (defn- channels
   "Returns a vector of channels representing drag events"
-  [{:keys [frames containers]}]
-  (let [frame-documents (map dom/getFrameContentDocument frames)
+  [state]
+  (let [current-state @state
+        frames (get-in current-state [:config :frames])
+        frame-documents (map dom/getFrameContentDocument frames)
         documents (concat [js/document] frame-documents)]
-    [(begin documents :begin #(can-start? {:event %1 :containers containers}))
-     (release documents :release)
-     (move documents :move)]))
+    [(release documents :release)
+     (move documents :move)
+     (begin documents :begin
+       #(can-start?
+          {:event %1
+           :containers (get-in @state [:config :containers])}))]))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
-  [config]
-  (let [event-channels (channels config)
+  [state]
+  (let [event-channels (channels state)
         out (chan)]
     (go-loop []
       (let [[message channel] (alts! event-channels)

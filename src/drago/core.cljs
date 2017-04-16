@@ -6,14 +6,20 @@
             [drago.view :as view])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
+(defn- replace!
+  "Because threading is love. Threading is life"
+  [val atom]
+  (reset! atom val))
+
 (defn- update-state
   "Update state based on the contents of a message"
-  [prev-state [message-name body]]
+  [state [message-name body]]
   (let [msg {:message {:name message-name
                        :body body}}]
-    (-> prev-state
-        (merge msg)
-        reduce-state)))
+    (-> state
+        (swap! merge msg)
+        reduce-state
+        (replace! state))))
 
 (defn- drain!
   "Helper for consuming all input on a channel before closing it.
@@ -39,8 +45,8 @@
   "Initialize the people's champion!"
   [drago-config]
   (let [config (config/create drago-config)
-        start-state { :config config }
-        pointer-chan (ptr/pointer-chan config)
+        state (atom { :config config })
+        pointer-chan (ptr/pointer-chan state)
         in (chan)
         out (chan)]
     (pipe pointer-chan in)
@@ -49,8 +55,9 @@
        :out out
        :pointer pointer-chan
        :loop 
-       (go-loop [prev-state start-state]
-         (let [message (<! in)
-               new-state (update-state prev-state message)]
+       (go-loop []
+         (let [prev-state @state
+               message (<! in)
+               new-state (update-state state message)]
            (view/render new-state prev-state)
-           (recur new-state)))})))
+           (recur)))})))
