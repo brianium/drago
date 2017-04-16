@@ -6,20 +6,15 @@
             [drago.core :refer [drago]])
   (:require-macros [devcards.core :refer [defcard dom-node]]))
 
-(defn html
-  [str]
-  (->
-    (.from goog.string/Const str)
-    dom/constHtmlToNode))
+(defn html [str]
+  (dom/constHtmlToNode (.from goog.string/Const str)))
 
-(defn with-clean
-  [func]
+(defn with-clean [func]
   (fn [_ node]
     (set! (.-innerHTML node) "")
     (func node)))
 
-(defn pointer-detection
-  []
+(defn pointer-detection []
   (dom-node
     (with-clean
       (fn [node]
@@ -44,13 +39,12 @@
   The default behavior of drago is to clone draggable elements and simply
   add classes to represent each state.
 
-  ```
+  ```clojure
   (drago {:containers [left right]})
   ```"
   (pointer-detection))
 
-(defn nested-containers
-  []
+(defn nested-containers []
   (dom-node
     (with-clean
       (fn [node]
@@ -77,7 +71,48 @@
   
   We can even nest containers - making containers themselves draggable.
 
-  ```
+  ```clojure
   (drago {:containers [parent nested parent2 nested2]})
   ```"
   (nested-containers))
+
+(defn handle-drop [state _]
+  (let [name (get-in state [:message :name])
+        drop-target (get state :drop-target)
+        drag-source (get state :drag-source)]
+    (when (and (= :release name) (:container drop-target))
+      (dom/append
+        (:container drop-target)
+        (.cloneNode (:element drag-source) true)))))
+
+(defn toolbox [config]
+  (dom-node
+    (with-clean
+      (fn [node]
+        (let [fragment
+              (html "<div class=\"drag-demo\">
+                       <ul id=\"toolbox\" class=\"drago-container card-container\">
+                         <li>tool 1</li>
+                         <li>tool 2</li>
+                         <li>tool 3</li>
+                       </ul>
+                       <ul id=\"dropzone\" class=\"drago-container card-container\">
+                       </ul>
+                     </div>")]
+          (dom/append node fragment)
+          (drago (merge
+                   {:containers [(dom/getElement "toolbox")
+                                 (dom/getElement "dropzone")]}
+                   config)))))))
+
+(defcard
+  "## Toolbox Example
+
+  We can use a configured render function to support a simple
+  toolbox ui
+
+  ```clojure
+  (drago {:containers [toolbox dropzone]
+          :render handle-drop})
+  ```"
+  (toolbox { :render handle-drop }))

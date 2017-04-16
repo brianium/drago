@@ -30,6 +30,16 @@
     margin-bottom: 20px;
 }
 
+ul,li {
+    display: block;
+}
+
+li {
+    background-color: lime;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
 /** Core Drago Classes **/
 .drago-dragging {
     background-color: #39CCCC;
