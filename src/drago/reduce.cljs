@@ -23,9 +23,9 @@
 
 (defn move
   "Update state based on movement"
-  [{:keys [drag-source dragging] :as state}
-   {:keys [containers]}]
+  [{:keys [drag-source dragging config] :as state}]
   (let [offset (:offset drag-source)
+        containers (:containers config)
         {{:keys [target point element]} :body} (:message state)]
     (if-not dragging
       state
@@ -45,9 +45,9 @@
 (defn reduce-state
   "The main state reducer. The state of a drag operation at any
    given time is produced by this function"
-  [{{:keys [name]} :message :as state} config]
+  [{{:keys [name]} :message :as state}]
   (condp = name
     :begin (begin state)
-    :move (move state config)
+    :move (move state)
     :release (release state)
     state))
