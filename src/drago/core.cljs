@@ -1,5 +1,5 @@
 (ns drago.core
-  (:require [cljs.core.async :refer [<! chan pipe close!]]
+  (:require [cljs.core.async :refer [<! chan pipe close! put! sliding-buffer]]
             [drago.config :as config]
             [drago.pointer :as ptr]
             [drago.reduce :refer [reduce-state]]
@@ -34,12 +34,22 @@
 ;;;; Core drago API
 (defrecord DragContext [in out pointer loop])
 
-(defn stop! [ctx]
+(defn stop!
   "Closes all channels used in a drag context. @todo remove listeners mang"
+  [ctx]
   (let [{:keys [out pointer loop]} ctx]
     (close! loop)
     (close! out)
     (drain! pointer)))
+
+(defn receive
+  "Binds a function to the drag context. The function will be called
+  with the new and previous drag state when state changes occur"
+  [ctx func]
+  (go-loop []
+    (let [[new-state prev-state] (<! (:out ctx))]
+      (func new-state prev-state)
+      (recur))))
 
 (defn drago
   "Initialize the people's champion!"
@@ -48,7 +58,7 @@
         state (atom { :config config })
         pointer-chan (ptr/pointer-chan state)
         in (chan)
-        out (chan)]
+        out (chan (sliding-buffer 10))]
     (pipe pointer-chan in)
     (map->DragContext
       {:in in
@@ -60,4 +70,5 @@
                message (<! in)
                new-state (update-state state message)]
            (view/render new-state prev-state)
+           (put! out [new-state prev-state])
            (recur)))})))

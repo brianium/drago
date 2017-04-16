@@ -3,7 +3,7 @@
             [sablono.core :as sab]
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
-            [drago.core :refer [drago]])
+            [drago.core :refer [drago receive]])
   (:require-macros [devcards.core :refer [defcard dom-node]]))
 
 (defn html [str]
@@ -85,7 +85,7 @@
         (:container drop-target)
         (.cloneNode (:element drag-source) true)))))
 
-(defn toolbox [config]
+(defn toolbox [handler]
   (dom-node
     (with-clean
       (fn [node]
@@ -100,19 +100,32 @@
                        </ul>
                      </div>")]
           (dom/append node fragment)
-          (drago (merge
-                   {:containers [(dom/getElement "toolbox")
-                                 (dom/getElement "dropzone")]}
-                   config)))))))
+          (receive
+            (drago {:containers [(dom/getElement "toolbox")
+                                 (dom/getElement "dropzone")]})
+            handler))))))
 
 (defcard
   "## Toolbox Example
 
-  We can use a configured render function to support a simple
-  toolbox ui
+  We can bind functions to state changes using the receive function. Any function
+  bound this way receives the new and previous state. This can be used for additional
+  rendering, or side effects.
+
+  We can create a simple toolbox ui by listening with a function.
 
   ```clojure
-  (drago {:containers [toolbox dropzone]
-          :render handle-drop})
+  (defn handle-drop [state _]
+    (let [name (get-in state [:message :name])
+          drop-target (get state :drop-target)
+          drag-source (get state :drag-source)]
+      (when (and (= :release name) (:container drop-target))
+        (dom/append
+          (:container drop-target)
+          (.cloneNode (:element drag-source) true)))))
+
+  ;; create a drag context and listen for state changes
+  (-> (drago {:containers [toolbox dropzone]})
+      (receive handle-drop))
   ```"
-  (toolbox { :render handle-drop }))
+  (toolbox handle-drop))
