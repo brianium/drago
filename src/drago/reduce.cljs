@@ -15,6 +15,7 @@
     (-> state
         (assoc :dragging true)
         (assoc :mirror clone)
+        (dissoc :drop-target)
         (assoc :drag-source {:element target
                              :document (dom/getOwnerDocument target)
                              :rect rect
@@ -40,7 +41,10 @@
 (defn release
   "Updates state when the pointer is released"
   [state]
-  (assoc state :dragging false))
+  (-> state
+      (assoc :dragging false)
+      (dissoc :drag-source)
+      (dissoc :mirror)))
 
 (defn reduce-state
   "The main state reducer. The state of a drag operation at any

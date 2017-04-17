@@ -36,7 +36,8 @@
 (defrecord DragContext [in out pointer loop])
 
 (defn stop!
-  "Closes all channels used in a drag context. @todo remove listeners mang"
+  "Closes all channels used in a drag context.
+  @todo remove event listeners"
   [ctx]
   (let [{:keys [out pointer loop]} ctx]
     (close! loop)
@@ -44,7 +45,7 @@
     (drain! pointer)))
 
 (defn listen
-  "Binds a function to the drag context. The function will be called
+  "Binds a function to a drag context. The function will be called
   with the new and previous drag state when state changes occur"
   [ctx func]
   (go-loop []

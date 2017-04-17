@@ -76,11 +76,11 @@
   ```"
   (nested-containers))
 
-(defn handle-drop [state _]
+(defn handle-drop [state prev]
   (let [name (get-in state [:message :name])
         drop-target (get state :drop-target)
-        drag-source (get state :drag-source)]
-    (when (and (= :release name) (:container drop-target))
+        drag-source (get prev :drag-source)]
+    (when (and (= :release name) (:container drop-target) (:element drag-source))
       (dom/append
         (:container drop-target)
         (.cloneNode (:element drag-source) true)))))
@@ -115,11 +115,11 @@
   We can create a simple toolbox ui by listening with a function.
 
   ```clojure
-  (defn handle-drop [state _]
+  (defn handle-drop [state prev]
     (let [name (get-in state [:message :name])
           drop-target (get state :drop-target)
-          drag-source (get state :drag-source)]
-      (when (and (= :release name) (:container drop-target))
+          drag-source (get prev :drag-source)]
+      (when (and (= :release name) (:container drop-target) (:element drag-source))
         (dom/append
           (:container drop-target)
           (.cloneNode (:element drag-source) true)))))

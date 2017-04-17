@@ -72,12 +72,12 @@
 ;;; Draw release state
 (defn- remove-element
   "Remove the mirror element from the dom"
-  [{:keys [mirror]} _]
+  [_ {:keys [mirror]}]
   (dom/removeNode mirror))
 
 (defn- remove-start-classes
   "Remove classes from the drag source"
-  [{{:keys [element]} :drag-source} _]
+  [_ {{:keys [element]} :drag-source}]
   (when element
     (classes/remove element "drago-dragging")))
 
