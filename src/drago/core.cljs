@@ -17,14 +17,15 @@
   (let [msg {:message {:name message-name
                        :body body}}]
     (-> state
-        (swap! merge msg)
+        deref
+        (merge msg)
         reduce-state
         (replace! state))))
 
 (defn- drain!
   "Helper for consuming all input on a channel before closing it.
   This is particularly helpful for shutting down pointer inputs since
-  there could be a lot of pending messages on that channel"
+  there could many pending messages on that channel"
   [ch]
   (go-loop []
     (if (some? (<! ch))
