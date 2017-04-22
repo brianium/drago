@@ -28,6 +28,13 @@
       (is (= "8px" (.. clone -style -left)))
       (is (= "8px" (.. clone -style -top)))))
 
+  (testing "drop-target is removed from state"
+    (let [element (dom/getElement "clickable")
+          point (Coordinate. 27 32)
+          state {:message {:body {:target element :point point}} :drop-target {}}
+          new-state (begin state)]
+      (is (false? (contains? new-state :drop-target)))))
+
   (testing "drag state is set"
     (let [element (dom/getElement "clickable")
           point (Coordinate. 27 32)
@@ -97,5 +104,13 @@
 (deftest release-test
   (testing "it unsets dragging state"
     (let [new-state (release {:dragging true})]
-      (is (false? (:dragging new-state))))))
+      (is (false? (:dragging new-state)))))
+
+  (testing "it removes drag-source"
+    (let [new-state (release (:drag-source {}))]
+      (is (false? (contains? new-state :drag-source)))))
+
+  (testing "it removes the mirror"
+    (let [new-state (release (:mirror true))]
+      (is (false? (contains? new-state :mirror))))))
 
