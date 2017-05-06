@@ -5,7 +5,7 @@
             [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]]
             [drago.message :refer [pointer-message move-message]]
-            [drago.dom :refer [belongs-to-container?]])
+            [drago.container :refer [belongs-to-container?]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
 
