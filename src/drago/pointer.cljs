@@ -53,7 +53,7 @@
         frame-documents (map dom/getFrameContentDocument frames)
         documents (concat [js/document] frame-documents)]
     [(release documents :release)
-     (move documents :move)
+     (move documents :move #(get @state :dragging))
      (begin documents :begin
        #(can-start?
           {:event %1

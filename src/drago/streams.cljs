@@ -45,8 +45,8 @@
             event-target
             events
             (fn listener [event]
-              (.preventDefault event)
               (when (dispatchable? event target pred)
+                (.preventDefault event)
                 (put! ch [message-name (message-factory event document)])))))
         ch))
 
