@@ -100,7 +100,7 @@
                        </ul>
                      </div>")]
           (dom/append node fragment)
-          (drago/listen
+          (drago/subscribe
             (drago/start {:containers [(dom/getElement "toolbox")
                                  (dom/getElement "dropzone")]})
             handler))))))
@@ -108,7 +108,7 @@
 (defcard
   "## Toolbox Example
 
-  We can bind functions to state changes using the receive function. Any function
+  We can bind functions to state changes using the subscribe function. Any function
   bound this way receives the new and previous state. This can be used for additional
   rendering, or side effects.
 
@@ -126,6 +126,6 @@
 
   ;; create a drag context and listen for state changes
   (-> (drago/start {:containers [toolbox dropzone]})
-      (drago/listen handle-drop))
+      (drago/subscribe handle-drop))
   ```"
   (toolbox handle-drop))

@@ -44,7 +44,7 @@
     (close! out)
     (drain! pointer)))
 
-(defn listen
+(defn subscribe
   "Binds a function to a drag context. The function will be called
   with the new and previous drag state when state changes occur"
   [ctx func]
