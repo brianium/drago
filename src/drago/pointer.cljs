@@ -4,7 +4,8 @@
             [goog.dom.classlist :as classes]
             [goog.array :refer [contains]]
             [drago.streams :refer [stream-factory]]
-            [drago.message :refer [pointer-message move-message]]
+            [drago.message :refer [pointer-message]]
+            [drago.dnd.message :refer [drag-message]]
             [drago.container :refer [belongs-to-container?]])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
@@ -17,7 +18,7 @@
   (stream-factory (array "mouseup" "touchend" "touchcancel") pointer-message))
 
 (def move
-  (stream-factory (array "mousemove" "touchmove") move-message))
+  (stream-factory (array "mousemove" "touchmove") drag-message))
 
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
