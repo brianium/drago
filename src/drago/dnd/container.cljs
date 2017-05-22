@@ -1,4 +1,4 @@
-(ns drago.container
+(ns drago.dnd.container
   (:require [goog.dom.classlist :as classes]
             [goog.dom :as dom]))
 

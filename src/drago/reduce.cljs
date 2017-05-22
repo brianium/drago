@@ -2,7 +2,7 @@
   (:require [goog.dom :as dom]
             [goog.dom.classlist :as classes]
             [goog.style :as style]
-            [drago.container :refer [find-container]])
+            [drago.dnd.container :refer [find-container]])
   (:import goog.math.Coordinate))
 
 (defn begin
