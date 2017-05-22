@@ -1,11 +1,11 @@
 (ns drago.core
-  (:require [cljs.core.async :refer [<! chan pipe close! put! sliding-buffer]]
+  (:require [cljs.core.async :refer [<! >! chan pipe close! put! sliding-buffer]]
             [drago.dnd.config :as config]
             [drago.pointer :as ptr]
             [drago.reduce :refer [reduce-state]]
             [drago.dnd.view :as view])
   (:refer-clojure :exclude [reduce])
-  (:require-macros [cljs.core.async.macros :refer [go-loop]]))
+  (:require-macros [cljs.core.async.macros :refer [go-loop go]]))
 
 (defn- replace!
   "Because threading is love. Threading is life"
@@ -53,6 +53,15 @@
     (let [[new-state prev-state] (<! (:out ctx))]
       (func new-state prev-state)
       (recur))))
+
+(defn publish
+  "Sends a message to the drag context. This message should be consumed
+   a reducer"
+  ([ctx message]
+   (go
+     (>! (:in ctx) message)))
+  ([ctx message-name message-body]
+   (publish ctx [message-name message-body])))
 
 (defn start
   "Initialize the people's champion!"
