@@ -1,4 +1,4 @@
-(ns drago.view
+(ns drago.dnd.view
   "Provides a minimal view layer for drag state.
 
   All view functions are given the current and previous state"

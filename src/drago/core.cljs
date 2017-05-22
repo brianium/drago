@@ -1,9 +1,10 @@
 (ns drago.core
   (:require [cljs.core.async :refer [<! chan pipe close! put! sliding-buffer]]
-            [drago.config :as config]
+            [drago.dnd.config :as config]
             [drago.pointer :as ptr]
             [drago.reduce :refer [reduce-state]]
-            [drago.view :as view])
+            [drago.dnd.view :as view])
+  (:refer-clojure :exclude [reduce])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (defn- replace!
@@ -55,22 +56,24 @@
 
 (defn start
   "Initialize the people's champion!"
-  [drago-config]
-  (let [config (config/create drago-config)
-        state (atom { :config config })
-        pointer-chan (ptr/pointer-chan state)
-        in (chan)
-        out (chan (sliding-buffer 10))]
-    (pipe pointer-chan in)
-    (map->DragContext
-      {:in in
-       :out out
-       :pointer pointer-chan
-       :loop 
-       (go-loop []
-         (let [prev-state @state
-               message (<! in)
-               new-state (update-state state message)]
-           (view/render new-state prev-state)
-           (put! out [new-state prev-state])
-           (recur)))})))
+  ([drago-config reduce]
+   (let [config (config/create drago-config)
+         state (atom { :config config })
+         pointer-chan (ptr/pointer-chan state)
+         in (chan)
+         out (chan (sliding-buffer 10))]
+     (pipe pointer-chan in)
+     (map->DragContext
+       {:in in
+        :out out
+        :pointer pointer-chan
+        :loop 
+        (go-loop []
+          (let [prev-state @state
+                message (<! in)
+                new-state (reduce state message)]
+            (view/render new-state prev-state)
+            (put! out [new-state prev-state])
+            (recur)))})))
+  ([drago-config]
+   (start drago-config update-state)))

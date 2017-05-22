@@ -1,4 +1,4 @@
-(ns drago.config
+(ns drago.dnd.config
   (:require [goog.dom :as dom]))
 
 ;;; The default drago configuration
