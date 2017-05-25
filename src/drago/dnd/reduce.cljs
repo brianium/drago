@@ -1,8 +1,9 @@
-(ns drago.reduce
+(ns drago.dnd.reduce
   (:require [goog.dom :as dom]
             [goog.dom.classlist :as classes]
             [goog.style :as style]
             [drago.dnd.container :refer [find-container]])
+  (:refer-clojure :exclude [reduce])
   (:import goog.math.Coordinate))
 
 (defn begin
@@ -44,7 +45,7 @@
       (dissoc :drag-source)
       (dissoc :mirror)))
 
-(defn reduce-state
+(defn reduce
   "The main state reducer. The state of a drag operation at any
    given time is produced by this function"
   [{{:keys [name]} :message :as state}]
