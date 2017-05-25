@@ -2,8 +2,7 @@
   (:require [mount.core :as mount]
             [goog.events :as events]
             [goog.dom :as dom]
-            [drago.core :as drago]
-            [drago.pointer :as ptr])
+            [drago.core :as drago])
   (:require-macros [mount.core :refer [defstate]]))
 
 (enable-console-print!)
@@ -40,7 +39,6 @@
 
 (defn setup []
   (.log js/console "Setup")
-  (reset! ptr/pointer-state {})
   (mount/start))
 
 (defn on-js-reload []

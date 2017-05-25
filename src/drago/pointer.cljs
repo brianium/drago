@@ -37,40 +37,48 @@
                   is-left-click-or-touch?
                   in-container?))
 
-;;;; Global State
-(defonce pointer-state (atom {}))
-
-(defn- update-pointer-state
-  "Updates the pointer state atom with relevant message data"
-  [[message-name body]]
-  (swap! pointer-state assoc :name message-name))
-
 ;;;; Channels
 (defn- channels
   "Returns a vector of channels representing drag events"
-  [state]
-  (let [current-state @state
+  [*state]
+  (let [current-state @*state
         frames (get-in current-state [:config :frames])
         frame-documents (map dom/getFrameContentDocument frames)
         documents (concat [js/document] frame-documents)]
     [(release documents :release)
-     (move documents :move #(get @state :dragging))
+     (move documents :move #(get @*state :dragging))
      (begin documents :begin
        #(can-start?
           {:event %1
-           :containers (get-in @state [:config :containers])}))]))
+           :containers (get-in @*state [:config :containers])}))]))
+
+;;;; Pointer channel
+(defn- update-pointer-state
+  "Updates the pointer state atom with relevant message data"
+  [[message-name body] *pointer-state]
+  (swap! *pointer-state assoc :name message-name))
+
+(defn- post-release-move?
+  "Determines if the move happened after a release. This addresses
+  a known Chrome bug where a move event is fired after the mouse has
+  been released"
+  [message *pointer-state]
+  (let [[message-name _] message
+        previous-name (:name @*pointer-state)]
+    (and
+      (= :move message-name)
+      (= :release previous-name))))
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"
-  [state]
-  (let [event-channels (channels state)
+  [*state]
+  (let [*pointer-state (atom {})
+        event-channels (channels *state)
         out (chan)]
     (go-loop []
-      (let [[message channel] (alts! event-channels)
-            [message-name body] message
-            prev-state @pointer-state]
-        (update-pointer-state message)
-        (when-not (and (= :move message-name) (= :release (:name prev-state)))
-          (>! out message)))
+      (let [[message channel] (alts! event-channels)]
+        (when-not (post-release-move? message *pointer-state)
+          (>! out message))
+        (update-pointer-state message *pointer-state))
       (recur))
     out))

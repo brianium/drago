@@ -24,19 +24,17 @@
 
 (defn move
   "Update state based on movement"
-  [{:keys [drag-source dragging config] :as state}]
+  [{:keys [drag-source config] :as state}]
   (let [offset (:offset drag-source)
         containers (:containers config)
         {{:keys [target point element]} :body} (:message state)]
-    (if-not dragging
-      state
-      (-> state
+    (-> state
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))
         (assoc-in [:drag-source :y] (- (.-y point) (.-y offset)))
         (assoc :drop-target { :element element })
         (as-> state (if-let [container (find-container containers element)]
                       (assoc-in state [:drop-target :container] container)
-                      state))))))
+                      state)))))
 
 (defn release
   "Updates state when the pointer is released"
