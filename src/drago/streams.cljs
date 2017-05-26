@@ -15,7 +15,7 @@
 (defn- dispatchable?
   "Check if the current event is dispatchable for the given target.
 
-  target can be a dom element or a selector string"
+  Target can be a dom element or a selector string"
   [event target pred]
   (let [event-target (.-target event)]
     (if (string? target)

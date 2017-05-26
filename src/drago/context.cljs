@@ -45,7 +45,7 @@
    (publish ctx [message-name message-body])))
 
 (defn create
-  [state reduce pointer]
+  [*state reduce pointer]
   (let [in (chan)
         out (chan (async/sliding-buffer 10))]
     (async/pipe pointer in)
@@ -55,9 +55,9 @@
        :pointer pointer
        :loop
        (go-loop []
-         (let [prev-state @state
+         (let [prev-state @*state
                message (<! in)
-               new-state (reduce state message)]
+               new-state (reduce *state message)]
            (view/render new-state prev-state)
            (async/put! out [new-state prev-state])
            (recur)))})))
