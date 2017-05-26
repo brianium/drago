@@ -3,7 +3,8 @@
 
 ;;; The default drago configuration
 (defonce default-config
-  {:frames []})
+  {:frames []
+   :render true})
 
 (defn- get-containers
   "Get drag containers from user config or create a default set"

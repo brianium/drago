@@ -44,7 +44,14 @@
   ([ctx message-name message-body]
    (publish ctx [message-name message-body])))
 
+(defn- render-default?
+  "Is drago doing any rendering?"
+  [{:keys [config]}]
+  (:render config))
+
 (defn create
+  "Creates a new DragContext. The DragContext contains all channels
+  and event streams used for updating internal state for a drag operation"
   [*state reduce pointer]
   (let [in (chan)
         out (chan (async/sliding-buffer 10))]
@@ -58,6 +65,7 @@
          (let [prev-state @*state
                message (<! in)
                new-state (reduce *state message)]
-           (view/render new-state prev-state)
+           (when (render-default? new-state)
+             (view/render new-state prev-state))
            (async/put! out [new-state prev-state])
            (recur)))})))
