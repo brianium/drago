@@ -1,24 +1,23 @@
 (ns drago.pointer
-  (:require [cljs.core.async :refer [chan >! alts!]]
+  (:require [cljs.core.async :as async :refer [chan >!]]
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
-            [goog.array :refer [contains]]
-            [drago.streams :refer [stream-factory]]
-            [drago.message :refer [pointer-message]]
-            [drago.dnd.message :refer [drag-message]]
-            [drago.dnd.container :refer [belongs-to-container?]])
+            [drago.streams :as streams]
+            [drago.message :as message]
+            [drago.dnd.message :as dnd-message]
+            [drago.dnd.container :as container])
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
 
 ;;;; Pointer Streams
 (def begin
-  (stream-factory (array "mousedown" "touchstart") pointer-message))
+  (streams/factory (array "mousedown" "touchstart") message/pointer))
 
 (def release
-  (stream-factory (array "mouseup" "touchend" "touchcancel") pointer-message))
+  (streams/factory (array "mouseup" "touchend" "touchcancel") message/pointer))
 
 (def move
-  (stream-factory (array "mousemove" "touchmove") drag-message))
+  (streams/factory (array "mousemove" "touchmove") dnd-message/drag))
 
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
@@ -31,7 +30,9 @@
   "Only elements within containers can be dragged"
   [{:keys [event containers]}]
   (let [target (.-target event)]
-    (belongs-to-container? containers target)))
+    (container/belongs-to-container?
+      containers
+      target)))
 
 (def can-start? (every-pred
                   is-left-click-or-touch?

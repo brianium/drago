@@ -1,6 +1,6 @@
 (ns drago.dnd.message
   (:require [goog.dom :as dom]
-            [drago.message :refer [pointer-message]]))
+            [drago.message :as message]))
 
 ;;; Defines a multi-method for using elementFromPoint with
 ;;; and without iframes
@@ -21,11 +21,11 @@
   [element _ _]
   element)
 
-(defn drag-message
+(defn drag
   "Extends the pointer message to include the element that the cursor
    is currently over"
   [event _]
-  (let [msg (pointer-message event _)
+  (let [msg (message/pointer event _)
         point (:client msg)
         x (.-x point)
         y (.-y point)

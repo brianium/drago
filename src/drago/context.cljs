@@ -1,5 +1,5 @@
 (ns drago.context
-  (:require [cljs.core.async :refer [close! <! >! chan pipe put! sliding-buffer]]
+  (:require [cljs.core.async :as async :refer [<! >! chan]]
             [drago.dnd.view :as view])
   (:require-macros [cljs.core.async.macros :refer [go-loop go]])
   (:refer-clojure :exclude [reduce]))
@@ -14,15 +14,15 @@
   (go-loop []
     (if (some? (<! ch))
       (recur)
-      (close! ch))))
+      (async/close! ch))))
 
 (defn stop!
   "Closes all channels used in a drag context.
   @todo remove event listeners"
   [ctx]
   (let [{:keys [out pointer loop]} ctx]
-    (close! loop)
-    (close! out)
+    (async/close! loop)
+    (async/close! out)
     (drain! pointer)))
 
 (defn subscribe
@@ -47,8 +47,8 @@
 (defn create
   [state reduce pointer]
   (let [in (chan)
-        out (chan (sliding-buffer 10))]
-    (pipe pointer in)
+        out (chan (async/sliding-buffer 10))]
+    (async/pipe pointer in)
     (map->DragContext
       {:in in
        :out out
@@ -59,5 +59,5 @@
                message (<! in)
                new-state (reduce state message)]
            (view/render new-state prev-state)
-           (put! out [new-state prev-state])
+           (async/put! out [new-state prev-state])
            (recur)))})))

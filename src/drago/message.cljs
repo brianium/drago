@@ -2,7 +2,7 @@
   (:require [goog.dom :as dom])
   (:import goog.math.Coordinate))
 
-(defn pointer-message
+(defn pointer
   "Creates a pointer message containing a coordinate point,
    the event target, and the event document"
   [event _]

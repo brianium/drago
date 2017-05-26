@@ -1,7 +1,7 @@
 (ns drago.streams
   "Functions for working with event streams"
   (:require [goog.events :as events]
-            [cljs.core.async :refer [chan put!]]))
+            [cljs.core.async :as async :refer [chan]]))
 
 (defn- matches?
   "Test if an element matches a css selector"
@@ -24,7 +24,7 @@
         (pred event))
       (pred event))))
 
-(defn stream-factory
+(defn factory
   "Creates a function capable of creating event streams.
   
   'events' is any value accepted by goog.events/listen
@@ -35,7 +35,7 @@
    The returned factory accepts a target that can be a CSS selector,
    an html element, or a sequence of elements"
   ([events message-factory]
-   (fn factory
+   (fn stream-factory
      ([target message-name pred document]
       (let [ch (chan)
             selector? (string? target)
@@ -47,11 +47,11 @@
             (fn listener [event]
               (when (dispatchable? event target pred)
                 (.preventDefault event)
-                (put! ch [message-name (message-factory event document)])))))
+                (async/put! ch [message-name (message-factory event document)])))))
         ch))
 
      ([target message-name]
-      (factory target message-name some?))
+      (stream-factory target message-name some?))
      
      ([target message-name pred]
-      (factory target message-name pred js/document)))))
+      (stream-factory target message-name pred js/document)))))

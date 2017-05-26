@@ -2,7 +2,7 @@
   (:require [goog.dom :as dom]
             [goog.dom.classlist :as classes]
             [goog.style :as style]
-            [drago.dnd.container :refer [find-container]])
+            [drago.dnd.container :as container])
   (:refer-clojure :exclude [reduce])
   (:import goog.math.Coordinate))
 
@@ -33,7 +33,7 @@
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))
         (assoc-in [:drag-source :y] (- (.-y point) (.-y offset)))
         (assoc :drop-target { :element element })
-        (as-> state (if-let [container (find-container containers element)]
+        (as-> state (if-let [container (container/find-container containers element)]
                       (assoc-in state [:drop-target :container] container)
                       state)))))
 
