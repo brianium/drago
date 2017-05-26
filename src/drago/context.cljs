@@ -64,8 +64,9 @@
        (go-loop []
          (let [prev-state @*state
                message (<! in)
-               new-state (reduce *state message)]
+               new-state (reduce prev-state message)]
            (when (render-default? new-state)
              (view/render new-state prev-state))
            (async/put! out [new-state prev-state])
+           (reset! *state new-state)
            (recur)))})))
