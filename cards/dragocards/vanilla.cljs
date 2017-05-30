@@ -1,4 +1,6 @@
-(ns dragocards.core
+(ns dragocards.vanilla
+  "This set of devcards demonstrates dragos API using vanilla dom operations.
+  No react/virtual doms here."
   (:require [devcards.core]
             [sablono.core :as sab]
             [goog.dom :as dom]
@@ -9,10 +11,12 @@
 (defn html [str]
   (dom/constHtmlToNode (.from goog.string/Const str)))
 
+
 (defn with-clean [func]
   (fn [_ node]
     (set! (.-innerHTML node) "")
     (func node)))
+
 
 (defn pointer-detection []
   (dom-node
@@ -28,6 +32,7 @@
           (classes/add node "drag-demo")
           (dom/append node left right))))))
 
+
 (defcard
   "## Basic pointer detection
 
@@ -40,9 +45,10 @@
   add classes to represent each state.
 
   ```clojure
-  (drago/start {:containers [left right]})
+  (drago/dnd {:containers [left right]})
   ```"
   (pointer-detection))
+
 
 (defn nested-containers []
   (dom-node
@@ -66,15 +72,17 @@
                                    (dom/getElement "nested")
                                    (dom/getElement "nested2")]}))))))
 
+
 (defcard
   "## Nested containers
   
   We can even nest containers - making containers themselves draggable.
 
   ```clojure
-  (drago/start {:containers [parent nested parent2 nested2]})
+  (drago/dnd {:containers [parent nested parent2 nested2]})
   ```"
   (nested-containers))
+
 
 (defn handle-drop [state prev]
   (let [name (get-in state [:message :name])
@@ -84,6 +92,7 @@
       (dom/append
         (:container drop-target)
         (.cloneNode (:element drag-source) true)))))
+
 
 (defn toolbox [handler]
   (dom-node
@@ -105,6 +114,7 @@
                                      (dom/getElement "dropzone")]})
             handler))))))
 
+
 (defcard
   "## Toolbox Example
 
@@ -125,7 +135,7 @@
           (.cloneNode (:element drag-source) true)))))
 
   ;; create a drag context and listen for state changes
-  (-> (drago/start {:containers [toolbox dropzone]})
+  (-> (drago/dnd {:containers [toolbox dropzone]})
       (drago/subscribe handle-drop))
   ```"
   (toolbox handle-drop))
