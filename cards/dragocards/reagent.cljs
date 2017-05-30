@@ -29,6 +29,7 @@
    [(with-meta dropzone-component {:component-did-mount #(publish-container drag-context %1)})
     [rectangle-component]]])
 
+
 (defcard-rg basic-pointer-detection
   "## Basic pointer detection"
   (fn [] (pointer-detection (dnd/start))))
