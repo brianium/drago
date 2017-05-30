@@ -14,6 +14,30 @@
       reducer/reduce))
 
 
+(defn- is-drop?
+  "Based on the current state, is this a drop operation"
+  [state]
+  (let [name        (get-in state [:message :name])
+        drop-target (get state :drop-target)]
+    (and
+      (= :release name)
+      (:container drop-target))))
+
+
+(defn on-drop
+  "Subscribes to a drop operation. The provided function will be called
+  with the container, the element dragged and the current and previous
+  drag states"
+  [ctx func]
+  (context/subscribe
+    ctx
+    (fn [state prev-state]
+      (when (is-drop? state)
+        (func
+          state
+          prev-state)))))
+
+
 (defn start
   [configuration]
   (let [*state (atom {:config (config/create configuration)})

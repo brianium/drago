@@ -5,7 +5,8 @@
             [sablono.core :as sab]
             [goog.dom :as dom]
             [goog.dom.classlist :as classes]
-            [drago.core :as drago])
+            [drago.core :as drago]
+            [drago.dnd.core :as dnd])
   (:require-macros [devcards.core :refer [defcard dom-node]]))
 
 (defn html [str]
@@ -84,14 +85,13 @@
   (nested-containers))
 
 
-(defn handle-drop [state prev]
-  (let [name (get-in state [:message :name])
-        drop-target (get state :drop-target)
-        drag-source (get prev :drag-source)]
-    (when (and (= :release name) (:container drop-target) (:element drag-source))
-      (dom/append
-        (:container drop-target)
-        (.cloneNode (:element drag-source) true)))))
+(defn handle-drop
+  [state prev-state]
+  (let [container (get-in state [:drop-target :container])
+        element   (get-in prev-state [:drag-source :element])]
+    (dom/append
+      container
+      (.cloneNode element true))))
 
 
 (defn toolbox [handler]
@@ -109,7 +109,7 @@
                        </ul>
                      </div>")]
           (dom/append node fragment)
-          (drago/subscribe
+          (dnd/on-drop
             (drago/dnd {:containers [(dom/getElement "toolbox")
                                      (dom/getElement "dropzone")]})
             handler))))))
@@ -125,17 +125,16 @@
   We can create a simple toolbox ui by listening with a function.
 
   ```clojure
-  (defn handle-drop [state prev]
-    (let [name (get-in state [:message :name])
-          drop-target (get state :drop-target)
-          drag-source (get prev :drag-source)]
-      (when (and (= :release name) (:container drop-target) (:element drag-source))
-        (dom/append
-          (:container drop-target)
-          (.cloneNode (:element drag-source) true)))))
+  (defn handle-drop
+    [state prev-state]
+    (let [container (get-in state [:drop-target :container])
+          element   (get-in prev-state [:drag-source :element])]
+    (dom/append
+      container
+      (.cloneNode element true))))
 
   ;; create a drag context and listen for state changes
   (-> (drago/dnd {:containers [toolbox dropzone]})
-      (drago/subscribe handle-drop))
+      (dnd/on-drop handle-drop))
   ```"
   (toolbox handle-drop))
