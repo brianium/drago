@@ -69,6 +69,16 @@
       (dissoc :mirror)))
 
 
+(defn container
+  "Updates the configured dropzone containers"
+  [state]
+  (let [body       (get-in state [:message :body])
+        containers (get-in state [:config :containers])]
+    (->> (:container body)
+         (conj containers)
+         (assoc-in state [:config :containers]))))
+
+
 (defn reduce
   "The main state reducer. The state of a drag operation at any
    given time is produced by this function"
@@ -77,4 +87,5 @@
     :begin (begin state)
     :move (move state)
     :release (release state)
+    :container (container state)
     state))

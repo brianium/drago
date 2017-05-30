@@ -56,6 +56,12 @@
   (:render config))
 
 
+(defn- with-message
+  "Includes the message in state"
+  [state [message-name body]]
+  (assoc state :message {:name message-name :body body}))
+
+
 (defn create
   "Creates a new DragContext. The DragContext contains all channels
   and event streams used for updating internal state for a drag operation"
@@ -69,9 +75,9 @@
        :pointer pointer
        :loop
        (go-loop []
-         (let [prev-state @*state
-               message    (<! in)
-               new-state  (reduce prev-state message)]
+         (let [prev-state          @*state
+               message             (<! in)
+               new-state           (reduce (with-message prev-state message))]
            (when (render-default? new-state)
              (view/render new-state prev-state))
            (async/put! out [new-state prev-state])

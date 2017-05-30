@@ -7,7 +7,7 @@
             [goog.dom.classlist :as classes]
             [drago.core :as drago]
             [drago.dnd.core :as dnd])
-  (:require-macros [devcards.core :refer [defcard dom-node]]))
+  (:require-macros [devcards.core :refer [defcard defcard-doc dom-node]]))
 
 (defn html [str]
   (dom/constHtmlToNode (.from goog.string/Const str)))
@@ -34,7 +34,7 @@
           (dom/append node left right))))))
 
 
-(defcard
+(defcard-doc
   "## Drago With The Vanilla DOM
 
 

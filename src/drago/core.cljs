@@ -28,5 +28,9 @@
 
 (defn dnd
   "Start draggin and droppin"
-  [drago-config]
-  (dnd/start drago-config))
+  ([drago-config reduce-fn]
+   (dnd/start drago-config reduce-fn))
+  ([drago-config]
+   (dnd/start drago-config))
+  ([]
+   (dnd/start)))

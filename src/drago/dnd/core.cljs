@@ -5,15 +5,7 @@
             [drago.pointer :as pointer]))
 
 
-(defn- update-state
-  "Update state based on the contents of a message"
-  [state [message-name body]]
-  (-> state
-      (assoc :message {:name message-name
-                       :body body})
-      reducer/reduce))
-
-
+;;;; Drag And Drop Subscriptions
 (defn- is-drop?
   "Based on the current state, is this a drop operation"
   [state]
@@ -38,11 +30,22 @@
           prev-state)))))
 
 
+;;;; Drag and Drop Publishers
+(defn add-container!
+  [context container]
+  (context/publish context :container {:container container}))
+
+
 (defn start
-  [configuration]
-  (let [*state (atom {:config (config/create configuration)})
-        pointer-channel (pointer/pointer-chan *state)]
-    (context/create
-      *state
-      update-state
-      pointer-channel)))
+  "Creates a DragContext for use in drag and drop operations"
+  ([configuration reduce-fn]
+   (let [*state (atom {:config (config/create configuration)})
+         pointer-channel (pointer/pointer-chan *state)]
+     (context/create
+       *state
+       (comp reduce-fn reducer/reduce)
+       pointer-channel)))
+  ([configuration]
+   (start configuration identity))
+  ([]
+   (start {})))

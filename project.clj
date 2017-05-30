@@ -116,7 +116,8 @@
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.0"]
                                   [figwheel-sidecar "0.5.9"]
                                   [com.cemerick/piggieback "0.2.1"]
-                                  [devcards "0.2.3"]]
+                                  [devcards "0.2.3"]
+                                  [reagent "0.6.2"]]
 
                    :source-paths ["src" "dev"]
                    ;; for CIDER
