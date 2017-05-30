@@ -24,7 +24,7 @@
               right (html "<div class=\"drago-container card-container\">
                              <div class=\"rectangle\"></div>
                            </div>")
-              ch (drago/start {:containers [left right]})]
+              ch (drago/dnd {:containers [left right]})]
           (classes/add node "drag-demo")
           (dom/append node left right))))))
 
@@ -61,10 +61,10 @@
                             </div>
                           </div>")]
           (dom/append node fragment)
-          (drago/start {:containers [(dom/getElement "parent")
-                                     (dom/getElement "parent2")
-                                     (dom/getElement "nested")
-                                     (dom/getElement "nested2")]}))))))
+          (drago/dnd {:containers [(dom/getElement "parent")
+                                   (dom/getElement "parent2")
+                                   (dom/getElement "nested")
+                                   (dom/getElement "nested2")]}))))))
 
 (defcard
   "## Nested containers
@@ -101,8 +101,8 @@
                      </div>")]
           (dom/append node fragment)
           (drago/subscribe
-            (drago/start {:containers [(dom/getElement "toolbox")
-                                 (dom/getElement "dropzone")]})
+            (drago/dnd {:containers [(dom/getElement "toolbox")
+                                     (dom/getElement "dropzone")]})
             handler))))))
 
 (defcard

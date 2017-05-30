@@ -71,7 +71,8 @@
                            :pretty-print false}}]}
 
   :figwheel {;; :http-server-root "public" ;; default and assumes "resources"
-             ;; :server-port 3449 ;; default
+             
+             ;;:server-port 3449
              ;; :server-ip "127.0.0.1"
 
              :css-dirs ["resources/public/css"] ;; watch and update CSS
@@ -121,6 +122,8 @@
                    ;; for CIDER
                    :plugins [[cider/cider-nrepl "0.14.0"]
                              [lein-kibit "0.1.3"]]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}
+             
+             :devcards {:figwheel {:server-port 3450}}}
 
 )
