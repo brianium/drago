@@ -3,6 +3,7 @@
   (:require [goog.events :as events]
             [cljs.core.async :as async :refer [chan]]))
 
+
 (defn- matches?
   "Test if an element matches a css selector"
   [element selector]
@@ -11,6 +12,7 @@
     (.-webkitMatchesSelector element) (.webkitMatchesSelector element selector)
     (.-msMatchesSelector element) (.msMatchesSelector element selector)
     :else false))
+
 
 (defn- dispatchable?
   "Check if the current event is dispatchable for the given target.
@@ -23,6 +25,7 @@
         (matches? event-target target)
         (pred event))
       (pred event))))
+
 
 (defn factory
   "Creates a function capable of creating event streams.

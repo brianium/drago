@@ -4,7 +4,9 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop go]])
   (:refer-clojure :exclude [reduce]))
 
+
 (defrecord DragContext [in out pointer loop])
+
 
 (defn- drain!
   "Helper for consuming all input on a channel before closing it.
@@ -16,6 +18,7 @@
       (recur)
       (async/close! ch))))
 
+
 (defn stop!
   "Closes all channels used in a drag context.
   @todo remove event listeners"
@@ -24,6 +27,7 @@
     (async/close! loop)
     (async/close! out)
     (drain! pointer)))
+
 
 (defn subscribe
   "Binds a function to a drag context. The function will be called
@@ -35,6 +39,7 @@
       (recur)))
   ctx)
 
+
 (defn publish
   "Sends a message to the drag context. This message should be consumed
    a reducer"
@@ -44,10 +49,12 @@
   ([ctx message-name message-body]
    (publish ctx [message-name message-body])))
 
+
 (defn- render-default?
   "Is drago doing any rendering?"
   [{:keys [config]}]
   (:render config))
+
 
 (defn create
   "Creates a new DragContext. The DragContext contains all channels

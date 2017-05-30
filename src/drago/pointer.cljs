@@ -9,15 +9,19 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:import goog.events.BrowserEvent))
 
+
 ;;;; Pointer Streams
 (def begin
   (streams/factory (array "mousedown" "touchstart") message/pointer))
 
+
 (def release
   (streams/factory (array "mouseup" "touchend" "touchcancel") message/pointer))
 
+
 (def move
   (streams/factory (array "mousemove" "touchmove") dnd-message/drag))
+
 
 ;;;; Stream Filters
 (defn- is-left-click-or-touch?
@@ -25,6 +29,7 @@
   [{:keys [event]}]
   (or (= "touchstart" (.-type event))
     (.isButton event (.. BrowserEvent -MouseButton -LEFT))))
+
 
 (defn- in-container?
   "Only elements within containers can be dragged"
@@ -34,9 +39,11 @@
       containers
       target)))
 
+
 (def can-start? (every-pred
                   is-left-click-or-touch?
                   in-container?))
+
 
 ;;;; Channels
 (defn- channels
@@ -53,11 +60,13 @@
           {:event %1
            :containers (get-in @*state [:config :containers])}))]))
 
+
 ;;;; Pointer channel
 (defn- update-pointer-state
   "Updates the pointer state atom with relevant message data"
   [[message-name body] *pointer-state]
   (swap! *pointer-state assoc :name message-name))
+
 
 (defn- post-release-move?
   "Determines if the move happened after a release. This addresses
@@ -69,6 +78,7 @@
     (and
       (= :move message-name)
       (= :release previous-name))))
+
 
 (defn pointer-chan
   "Returns a single channel that receives touch and mouse messages"

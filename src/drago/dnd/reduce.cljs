@@ -6,6 +6,7 @@
   (:refer-clojure :exclude [reduce])
   (:import goog.math.Coordinate))
 
+
 (defn init
   "Sets up initial state for drag operations."
   [{{{:keys [target point]} :body} :message :as state}]
@@ -19,12 +20,14 @@
                              :offset (Coordinate. (- (.-x point) (.-left rect))
                                                   (- (.-y point) (.-top rect)))}))))
 
+
 (defn- add-mirror
   "Adds a mirror element of the drag source to state"
   [{{{:keys [target]} :body} :message :as state}]
   (let [clone (.cloneNode target true)]
     (classes/add clone "drago-mirror")
     (assoc state :mirror clone)))
+
 
 (defn clone-if-configured
   "Adds a mirror element only if drago has been configured
@@ -34,11 +37,13 @@
     state
     (add-mirror state)))
 
+
 ;; Sets state relevant to beginning a drag operation
 (def begin
   (comp
     clone-if-configured
     init))
+
 
 (defn move
   "Update state based on movement"
@@ -54,6 +59,7 @@
                       (assoc-in state [:drop-target :container] container)
                       state)))))
 
+
 (defn release
   "Updates state when the pointer is released"
   [state]
@@ -61,6 +67,7 @@
       (assoc :dragging false)
       (dissoc :drag-source)
       (dissoc :mirror)))
+
 
 (defn reduce
   "The main state reducer. The state of a drag operation at any

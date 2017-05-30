@@ -4,6 +4,7 @@
             [drago.context :as context]
             [drago.pointer :as pointer]))
 
+
 (defn- update-state
   "Update state based on the contents of a message"
   [state [message-name body]]
@@ -11,6 +12,7 @@
       (assoc :message {:name message-name
                        :body body})
       reducer/reduce))
+
 
 (defn start
   [configuration]

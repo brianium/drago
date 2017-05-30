@@ -7,6 +7,7 @@
             [goog.style :as style]
             [goog.style.transform :as transform]))
 
+
 ;;; Draw begin state
 (defn- init-clone-position
   "Position the mirror element on top of the drag source"
@@ -17,6 +18,7 @@
       (.-left rect)
       (.-top rect))))
 
+
 (defn- append-element
   "Fixes dimensions of the mirror to the drag source and appends
   the mirror element to the drag source's parent document"
@@ -26,6 +28,7 @@
     (style/setSize mirror (.-width rect) (.-height rect))
     (dom/appendChild (.-body document) mirror)))
 
+
 (defn- add-start-classes
   "Adds a class to the drag source to indicate it is being dragged"
   [{:keys [drag-source]} _]
@@ -33,9 +36,11 @@
     (:element drag-source)
     "drago-dragging"))
 
+
 ;;; The main view function for handling the start of a drag
 (def begin
   (juxt init-clone-position append-element add-start-classes))
+
 
 ;;; Draw move state
 (defn- position-element
@@ -48,12 +53,14 @@
         (- (:x drag-source) (.-left rect))
         (- (:y drag-source) (.-top rect))))))
 
+
 (defn- over-container
   "Adds a class to the drag container that the pointer is currently over"
   [{:keys [drop-target dragging]} _]
   (let [container (:container drop-target)]
     (when (and dragging container)
       (classes/add container "drago-over"))))
+
 
 (defn- leave
   "Removes relevant classes from a drop container that is no longer
@@ -65,9 +72,11 @@
       (when prev
         (classes/remove prev "drago-over")))))
 
+
 ;;; The main view function for handling drag movement
 (def move
   (juxt position-element over-container leave))
+
 
 ;;; Draw release state
 (defn- remove-element
@@ -75,11 +84,13 @@
   [_ {:keys [mirror]}]
   (dom/removeNode mirror))
 
+
 (defn- remove-start-classes
   "Remove classes from the drag source"
   [_ {{:keys [element]} :drag-source}]
   (when element
     (classes/remove element "drago-dragging")))
+
 
 (defn- remove-container-classes
   "Remove classes from the drag container"
@@ -87,9 +98,11 @@
   (when container
     (classes/remove container "drago-over")))
 
+
 ;;; The main view function for handling a drag release
 (def release
   (juxt remove-element remove-start-classes remove-container-classes))
+
 
 (defn render
   "Renders the current state of a drag operation"

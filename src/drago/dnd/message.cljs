@@ -2,9 +2,11 @@
   (:require [goog.dom :as dom]
             [drago.message :as message]))
 
+
 ;;; Defines a multi-method for using elementFromPoint with
 ;;; and without iframes
 (defmulti element-from-point (fn [element x y] (type element)))
+
 
 (defmethod element-from-point
   js/HTMLIFrameElement
@@ -17,9 +19,11 @@
       (- x left)
       (- y top))))
 
+
 (defmethod element-from-point :default
   [element _ _]
   element)
+
 
 (defn drag
   "Extends the pointer message to include the element that the cursor
