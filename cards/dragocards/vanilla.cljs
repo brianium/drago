@@ -35,6 +35,17 @@
 
 
 (defcard
+  "## Drago With The Vanilla DOM
+
+
+  While drago is an excellent library to use with re-frame and the like -
+  it is also useful when working with plain'ol native DOM apis.
+
+  The following examples demonstrate some basic usage of drago within the vanilla
+  DOM")
+
+
+(defcard
   "## Basic pointer detection
 
   Lets start by demonstrating drago's basic pointer detection
@@ -44,6 +55,8 @@
 
   The default behavior of drago is to clone draggable elements and simply
   add classes to represent each state.
+
+  In the following example `left` and `right` are dom elements.
 
   ```clojure
   (drago/dnd {:containers [left right]})

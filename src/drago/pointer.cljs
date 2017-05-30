@@ -52,9 +52,10 @@
   (let [current-state   @*state
         frames          (get-in current-state [:config :frames])
         frame-documents (map dom/getFrameContentDocument frames)
-        documents       (concat [js/document] frame-documents)]
-    [(release documents :release)
-     (move documents :move #(get @*state :dragging))
+        documents       (concat [js/document] frame-documents)
+        is-dragging?    #(get @*state :dragging)]
+    [(release documents :release is-dragging?)
+     (move documents :move is-dragging?)
      (begin documents :begin
        #(can-start?
           {:event %1
