@@ -60,7 +60,7 @@
   "Creates a new DragContext. The DragContext contains all channels
   and event streams used for updating internal state for a drag operation"
   [*state reduce pointer]
-  (let [in (chan)
+  (let [in  (chan)
         out (chan (async/sliding-buffer 10))]
     (async/pipe pointer in)
     (map->DragContext
@@ -70,8 +70,8 @@
        :loop
        (go-loop []
          (let [prev-state @*state
-               message (<! in)
-               new-state (reduce prev-state message)]
+               message    (<! in)
+               new-state  (reduce prev-state message)]
            (when (render-default? new-state)
              (view/render new-state prev-state))
            (async/put! out [new-state prev-state])

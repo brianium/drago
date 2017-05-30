@@ -49,10 +49,10 @@
 (defn- channels
   "Returns a vector of channels representing drag events"
   [*state]
-  (let [current-state @*state
-        frames (get-in current-state [:config :frames])
+  (let [current-state   @*state
+        frames          (get-in current-state [:config :frames])
         frame-documents (map dom/getFrameContentDocument frames)
-        documents (concat [js/document] frame-documents)]
+        documents       (concat [js/document] frame-documents)]
     [(release documents :release)
      (move documents :move #(get @*state :dragging))
      (begin documents :begin
@@ -74,7 +74,7 @@
   been released"
   [message *pointer-state]
   (let [[message-name _] message
-        previous-name (:name @*pointer-state)]
+        previous-name    (:name @*pointer-state)]
     (and
       (= :move message-name)
       (= :release previous-name))))
@@ -85,7 +85,7 @@
   [*state]
   (let [*pointer-state (atom {})
         event-channels (channels *state)
-        out (chan)]
+        out            (chan)]
     (go-loop []
       (let [[message channel] (alts! event-channels)]
         (when-not (post-release-move? message *pointer-state)

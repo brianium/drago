@@ -48,8 +48,8 @@
 (defn move
   "Update state based on movement"
   [{:keys [drag-source config] :as state}]
-  (let [offset (:offset drag-source)
-        containers (:containers config)
+  (let [offset                                 (:offset drag-source)
+        containers                             (:containers config)
         {{:keys [target point element]} :body} (:message state)]
     (-> state
         (assoc-in [:drag-source :x] (- (.-x point) (.-x offset)))

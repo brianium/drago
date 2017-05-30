@@ -12,9 +12,9 @@
   js/HTMLIFrameElement
   [iframe x y]
   (let [rect (.getBoundingClientRect iframe)
-        doc (dom/getFrameContentDocument iframe)
+        doc  (dom/getFrameContentDocument iframe)
         left (.-left rect)
-        top (.-top rect)]
+        top  (.-top rect)]
     (.elementFromPoint doc
       (- x left)
       (- y top))))
@@ -29,12 +29,12 @@
   "Extends the pointer message to include the element that the cursor
    is currently over"
   [event _]
-  (let [msg (message/pointer event _)
-        point (:client msg)
-        x (.-x point)
-        y (.-y point)
-        target (:target msg)
-        doc (.-ownerDocument target)
+  (let [msg     (message/pointer event _)
+        point   (:client msg)
+        x       (.-x point)
+        y       (.-y point)
+        target  (:target msg)
+        doc     (.-ownerDocument target)
         element (.elementFromPoint doc x y)]
     (merge msg {:element (element-from-point element x y)})))
 

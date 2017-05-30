@@ -40,8 +40,8 @@
   ([events message-factory]
    (fn stream-factory
      ([target message-name pred document]
-      (let [ch (chan)
-            selector? (string? target)
+      (let [ch            (chan)
+            selector?     (string? target)
             event-targets [(if selector? document target)]]
         (doseq [event-target (flatten event-targets)]
           (events/listen
