@@ -72,11 +72,11 @@
                          "<div class=\"drag-demo\">
                             <div class=\"drago-container card-container\" id=\"parent\">
                               <div class=\"rectangle\"></div>
-                              <div class=\"drago-container card-container is-rectangle\" id=\"nested\"></div>
+                              <div class=\"drago-container card-container\" id=\"nested\"></div>
                             </div>
                             <div class=\"drago-container card-container\" id=\"parent2\">
                               <div class=\"rectangle\"></div>
-                              <div class=\"drago-container card-container is-rectangle\" id=\"nested2\">
+                              <div class=\"drago-container card-container\" id=\"nested2\">
                               </div> 
                             </div>
                           </div>")]
