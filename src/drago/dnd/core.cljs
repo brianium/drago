@@ -20,14 +20,17 @@
   "Subscribes to a drop operation. The provided function will be called
   with the container, the element dragged and the current and previous
   drag states"
-  [ctx func]
-  (context/subscribe
-    ctx
-    (fn [state prev-state]
-      (when (is-drop? state)
-        (func
-          state
-          prev-state)))))
+  ([ctx func watch-key]
+   (context/subscribe
+     ctx
+     (fn [state prev-state]
+       (when (is-drop? state)
+         (func
+           state
+           prev-state)))
+     watch-key))
+  ([ctx func]
+   (on-drop ctx func (gensym "drago_on_drop_"))))
 
 
 ;;;; Drag and Drop Publishers

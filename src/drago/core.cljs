@@ -13,8 +13,10 @@
 (defn subscribe
   "Binds a function to a drag context. The function will be called
   with the new and previous state when state changes occur"
-  [ctx func]
-  (context/subscribe ctx func))
+  ([ctx func watch-key]
+   (context/subscribe ctx func watch-key))
+  ([ctx func]
+   (context/subscribe ctx func)))
 
 
 (defn publish

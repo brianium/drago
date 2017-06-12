@@ -5,7 +5,7 @@
   (:refer-clojure :exclude [reduce]))
 
 
-(defrecord DragContext [in out pointer loop])
+(defrecord DragContext [in out pointer loop state])
 
 
 (defn- drain!
@@ -32,12 +32,15 @@
 (defn subscribe
   "Binds a function to a drag context. The function will be called
   with the new and previous drag state when state changes occur"
-  [ctx func]
-  (go-loop []
-    (let [[new-state prev-state] (<! (:out ctx))]
-      (func new-state prev-state)
-      (recur)))
-  ctx)
+  ([ctx func watch-key]
+   (-> ctx
+     :state
+     (add-watch watch-key
+       (fn [_key _ref _old _new]
+         (func _new _old))))
+   ctx)
+  ([ctx func]
+   (subscribe ctx func (gensym "drago_"))))
 
 
 (defn publish
@@ -73,6 +76,7 @@
       {:in in
        :out out
        :pointer pointer
+       :state *state
        :loop
        (go-loop []
          (let [prev-state          @*state
