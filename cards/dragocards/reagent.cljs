@@ -34,16 +34,6 @@
   [component (dnd/start)])
 
 
-(defn basic-pointer-example []
-  (dnd-app
-    (fn [drag-context]
-      [:div.drag-demo
-       [(drop-target container drag-context)
-        [rectangle]]
-       [(drop-target container drag-context)
-        [rectangle]]])))
-
-
 (defcard-doc
   "## Drago and Reagent
 
@@ -86,6 +76,16 @@
   ```")
 
 
+(defn basic-pointer-example []
+  (dnd-app
+    (fn [drag-context]
+      [:div.drag-demo
+       [(drop-target container drag-context)
+        [rectangle]]
+       [(drop-target container drag-context)
+        [rectangle]]])))
+
+
 (defcard-rg basic-pointer-detection
   "## Basic pointer detection
 
@@ -103,3 +103,36 @@
            [rectangle]]])))
   ```"
   [basic-pointer-example])
+
+
+(defn nested-containers-example []
+  (dnd-app
+    (fn [drag-context]
+      [:div.drag-demo
+       [(drop-target container drag-context)
+        [rectangle]
+        [(drop-target container drag-context)]]
+       [(drop-target container drag-context)
+        [rectangle]
+        [(drop-target container drag-context)]]])))
+
+
+(defcard-rg nested-containers
+  "## Nested containers
+
+  Nested containers are also a snap. Any container component that shares the
+  same drag context will by default be enlisted in drag operations.
+
+  ```clojure
+  (defn nested-containers-example []
+    (dnd-app
+      (fn [drag-context]
+        [:div.drag-demo
+          [(drop-target container drag-context)
+          [rectangle]
+          [(drop-target container drag-context)]]
+        [(drop-target container drag-context)
+          [rectangle]
+          [(drop-target container drag-context)]]])))
+  ```"
+  [nested-containers-example])

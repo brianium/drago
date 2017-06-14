@@ -5,7 +5,7 @@
   (:refer-clojure :exclude [reduce]))
 
 
-(defrecord DragContext [in out pointer loop state])
+(defrecord DragContext [in pointer loop state])
 
 
 (defn- drain!
@@ -23,9 +23,8 @@
   "Closes all channels used in a drag context.
   @todo remove event listeners"
   [ctx]
-  (let [{:keys [out pointer loop]} ctx]
+  (let [{:keys [pointer loop]} ctx]
     (async/close! loop)
-    (async/close! out)
     (drain! pointer)))
 
 
@@ -69,12 +68,10 @@
   "Creates a new DragContext. The DragContext contains all channels
   and event streams used for updating internal state for a drag operation"
   [*state reduce pointer]
-  (let [in  (chan)
-        out (chan (async/sliding-buffer 10))]
+  (let [in  (chan)]
     (async/pipe pointer in)
     (map->DragContext
       {:in in
-       :out out
        :pointer pointer
        :state *state
        :loop
@@ -84,6 +81,5 @@
                new-state           (reduce (with-message prev-state message))]
            (when (render-default? new-state)
              (view/render new-state prev-state))
-           (async/put! out [new-state prev-state])
            (reset! *state new-state)
            (recur)))})))
