@@ -34,7 +34,8 @@ ul,li {
     display: block;
 }
 
-li {
+li,
+.tool {
     background-color: lime;
     margin-bottom: 10px;
     cursor: pointer;
