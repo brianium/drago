@@ -181,4 +181,52 @@
 
 
 (defcard-rg toolbox
+  "## Toolbox example
+
+  In this example we render a drag and drop container based off state
+  stored in a reagent atom. We use a couple of functions to wire everything
+  up to the drag context and the reagent atom.
+
+  ```clojure
+  (def tools (reagent/atom []))
+  
+  
+  (defn selection [drag-context]
+    [(drop-target container drag-context)
+     (->> @tools
+       (map #(vector :div.tool %1))
+       (map-indexed #(with-meta %2 {:key (str \"tool-\" %1)})))])
+  
+  
+  (defn- tool-on-drop
+    [text component]
+    (let [element (reagent/dom-node component)]
+      (fn [_ prev-state]
+        (when (= (get-in prev-state [:drag-source :element]) element)
+          (swap! tools conj text)))))
+  
+  
+  (defn tool
+    [text drag-context]
+    (reagent/create-class
+      {:component-did-mount
+       #(dnd/on-drop drag-context (tool-on-drop text %1))
+  
+       :display-name \"tool\"
+  
+       :reagent-render
+       (fn [text _]
+         [:div.tool text])}))
+  
+  
+  (defn toolbox-example []
+    (dnd-app
+      (fn [drag-context]
+        [:div.drag-demo
+         [(drop-target container drag-context)
+          [tool \"tool 1\" drag-context]
+          [tool \"tool 2\" drag-context]
+          [tool \"tool 3\" drag-context]]
+         (selection drag-context)])))
+  ```"
   [toolbox-example])
